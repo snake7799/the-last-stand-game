@@ -1,8 +1,8 @@
 var reqAnimFrame = window.requestAnimationFrame ||
-	window.mozRequestAnimationFrame 			||
-	window.webkitRequestAnimationFrame 			||
-	window.oRequestAnimationFrame 				||
-	window.msRequestAnimationFrame 				||
+	window.mozRequestAnimationFrame 	||
+	window.webkitRequestAnimationFrame 	||
+	window.oRequestAnimationFrame 		||
+	window.msRequestAnimationFrame 		||
 	function (callback) {
 		window.setTimeout(callback, 1000 / 60);
 	};
@@ -13,16 +13,16 @@ class Player {
 		this.posX = 1000;
 		this.posY = 380;
 		this.frames = ['./img/player/player_frame1.png',
-            './img/player/player_frame2.png',
-            './img/player/player_frame3.png',
-            './img/player/player_frame4.png',
-            './img/player/player_frame5.png',
-            './img/player/player_frame6.png',
-            './img/player/player_frame7.png',
-            './img/player/player_frame8.png',
-            './img/player/player_frame9.png',
-            './img/player/player_frame10.png'
-        ];
+		    './img/player/player_frame2.png',
+		    './img/player/player_frame3.png',
+		    './img/player/player_frame4.png',
+		    './img/player/player_frame5.png',
+		    './img/player/player_frame6.png',
+		    './img/player/player_frame7.png',
+		    './img/player/player_frame8.png',
+		    './img/player/player_frame9.png',
+		    './img/player/player_frame10.png'
+        	];
 		this.curFrame = 0;
 		this.curFrameInterval = 0;
 		this.speed = 1.5;	
@@ -30,14 +30,14 @@ class Player {
 }
 
 class Shoot {
-    constructor() {
-        this.shootX = [];
-        this.shootY = [];
+	constructor() {
+		this.shootX = [];
+        	this.shootY = [];
 		this.speed = 20;
 		this.interval = 0;
 		this.damage = 1;
-        this.isShot = false;
-    }
+        	this.isShot = false;
+    	}
 	
 	delay() {
 		return (this.speed > this.interval) ? false : true;
@@ -45,9 +45,8 @@ class Shoot {
 }
 
 class Enemy {
-    constructor(posY) {
-
-    }
+    	constructor(posY) {
+    	}
 }
 
 
@@ -60,11 +59,11 @@ var shotImg = new Image();
 var background = new Image();
 
 var beginGame = function() {
-    player = new Player();
-    shoot = new Shoot();
+	player = new Player();
+    	shoot = new Shoot();
 	playerImg.src = './img/player/player_stop.png';
 	shotImg.src = './img/player/weapon_fire.png';
-    background.src = './img/background.jpg';
+    	background.src = './img/background.jpg';
 };
 
 var enemyGeneration = function() {
@@ -76,58 +75,58 @@ var enemyRedraw = function(context) {
 };
 
 var playerRedraw = function(context) {
-    context.drawImage(background, 0, 0, 1280, 640);
-    context.drawImage(playerImg, player.posX, player.posY);
-    if (shoot.isShot == true) {
-        for (var i = 0; i < shoot.shootX.length; i++) {
-            if (shoot.shootX[i] > 0) {
-                context.drawImage(shotImg, shoot.shootX[i], shoot.shootY[i]);
-                shoot.shootX[i] -= 10;
-            } else {
-                shoot.shootX.shift();
-                shoot.shootY.shift();
-            }
-        }
-    }
+    	context.drawImage(background, 0, 0, 1280, 640);
+    	context.drawImage(playerImg, player.posX, player.posY);
+    	if (shoot.isShot == true) {
+        	for (var i = 0; i < shoot.shootX.length; i++) {
+            		if (shoot.shootX[i] > 0) {
+                		context.drawImage(shotImg, shoot.shootX[i], shoot.shootY[i]);
+                		shoot.shootX[i] -= 10;
+            		} else {
+				shoot.shootX.shift();
+				shoot.shootY.shift();
+            		}
+        	}
+    	}
 };
 
 
 function playerFrameChange() {
-    if (player.curFrame == 9 & player.curFrameInterval == 3) {
-        player.curFrame = 0;
-        player.curFrameInterval = 0;
-        playerImg.src = player.frames[player.curFrame];
-    }
-    if (player.curFrameInterval == 3) {
-        player.curFrame++;
-        player.curFrameInterval = 0;
-        playerImg.src = player.frames[player.curFrame];
-    }
-    player.curFrameInterval++;
+	if (player.curFrame == 9 & player.curFrameInterval == 3) {
+		player.curFrame = 0;
+		player.curFrameInterval = 0;
+		playerImg.src = player.frames[player.curFrame];
+    	}
+    	if (player.curFrameInterval == 3) {
+		player.curFrame++;
+		player.curFrameInterval = 0;
+		playerImg.src = player.frames[player.curFrame];
+    	}
+    	player.curFrameInterval++;
 };
 
 function playerFrameChangeBackwards() {
-    if (player.curFrame == 0 & player.curFrameInterval == 3) {
-        player.curFrame = 9;
-        player.curFrameInterval = 0;
-        playerImg.src = player.frames[player.curFrame];
-    }
-    if (player.curFrameInterval == 3) {
-        player.curFrame--;
-        player.curFrameInterval = 0;
-        playerImg.src = player.frames[player.curFrame];
-    }
-    player.curFrameInterval++;
+	if (player.curFrame == 0 & player.curFrameInterval == 3) {
+		player.curFrame = 9;
+		player.curFrameInterval = 0;
+		playerImg.src = player.frames[player.curFrame];
+    	}
+    	if (player.curFrameInterval == 3) {
+		player.curFrame--;
+		player.curFrameInterval = 0;
+		playerImg.src = player.frames[player.curFrame];
+    	}
+    	player.curFrameInterval++;
 };
 
 var keyState = {};
 
 document.addEventListener('keydown', function(e) {
-    keyState[e.keyCode || e.which] = true;
+    	keyState[e.keyCode || e.which] = true;
 }, true);
 
 document.addEventListener('keyup', function(e) {
-    keyState[e.keyCode || e.which] = false;
+    	keyState[e.keyCode || e.which] = false;
 }, true);
 
 document.onkeyup = function playerDefaltActions(e) {
@@ -181,9 +180,9 @@ var playerActions = function () {
 };
 
 requestAnimationFrame(function redraw() {
-    shoot.interval++;
-    playerActions();
-    playerRedraw(ctx);
-    enemyRedraw(ctx);
+	shoot.interval++;
+	playerActions();
+	playerRedraw(ctx);
+	enemyRedraw(ctx);
 	requestAnimationFrame(redraw);
 });
