@@ -77,6 +77,7 @@ var shoot;
 var playerImg = new Image();
 var shotImg = new Image();
 var background = new Image();
+var healthImage = new Image();
 const enemyGen = new EnemyGenerator();
 const enemyMan = new EnemyManager();
 
