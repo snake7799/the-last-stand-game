@@ -8,6 +8,9 @@ var reqAnimFrame = window.requestAnimationFrame ||
 	};
 window.requestAnimationFrame = reqAnimFrame;
 
+var cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
+var isStoped = false;
+
 class Player {
 	constructor() {
 		this.posX = 1000;
@@ -23,9 +26,10 @@ class Player {
 		    './img/player/player_frame9.png',
 		    './img/player/player_frame10.png'
         	];
+		this.health = 3;
 		this.curFrame = 0;
 		this.curFrameInterval = 0;
-		this.speed = 1.5;	
+		this.speed = 1.5;
 	}
 }
 
@@ -38,7 +42,7 @@ class Shoot {
 		this.damage = 1;
         	this.isShot = false;
     	}
-	
+
 	delay() {
 		return (this.speed > this.interval) ? false : true;
 	}
@@ -82,9 +86,11 @@ const enemyGen = new EnemyGenerator();
 const enemyMan = new EnemyManager();
 
 var beginGame = function() {
+	ctx.font = '60px VT323';
 	player = new Player();
     	shoot = new Shoot();
 	playerImg.src = './img/player/player_stop.png';
+	healthImage.src = './img/interface/health.png';
 	shotImg.src = './img/player/weapon_fire.png';
     	background.src = './img/background.jpg';
 };
@@ -149,6 +155,13 @@ var playerRedraw = function(context) {
     	}
 };
 
+var interfaceRedraw = function(context){
+	var healthImagePos = 1200;
+	for (var i = 0; i < player.health; i++) {
+			context.drawImage(healthImage,healthImagePos,30);
+			healthImagePos -= 50;
+	}
+}
 
 function playerFrameChange() {
 	if (player.curFrame == 9 & player.curFrameInterval == 3) {
@@ -179,6 +192,18 @@ function playerFrameChangeBackwards() {
 };
 
 var keyState = {};
+
+document.addEventListener('keypress',function(e) {
+			if(e.keyCode == 112 & isStoped == false) {
+				isStoped = true;
+				return;
+			}
+			if(e.keyCode == 112 & isStoped != false) {
+				isStoped = false;
+				requestAnimationFrame(redraw);
+				return;
+			}
+}, true );
 
 document.addEventListener('keydown', function(e) {
     	keyState[e.keyCode || e.which] = true;
@@ -238,11 +263,19 @@ var playerActions = function () {
 	}
 };
 
-requestAnimationFrame(function redraw() {
+var redraw = function(){
 	shoot.interval++;
 	playerActions();
 	playerRedraw(ctx);
     enemyGeneration();
 	enemyRedraw(ctx);
+	interfaceRedraw(ctx);
+	if (isStoped == true) {
+		ctx.fillStyle = 'red';
+		ctx.fillText("pause", 600, 320);
+		return;
+	}
 	requestAnimationFrame(redraw);
-});
+}
+
+requestAnimationFrame(redraw);
