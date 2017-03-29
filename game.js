@@ -45,8 +45,28 @@ class Shoot {
 }
 
 class Enemy {
-    	constructor(posY) {
-    	}
+    constructor(posY) {
+        this.posX = -100;
+        this.posY = posY;
+        this.frames = ['./img/enemy/enemy_frame1.png'];
+        this.curFrame = 0;
+        this.curFrameInterval = 0;
+        this.speed = 1;
+    }
+}
+
+class EnemyGenerator {
+    constructor() {
+        this.spawnInterval = 150;
+        this.curNumber = 0;
+    }
+}
+
+class EnemyManager {
+    constructor() {
+        this.enemy = [];
+        this.enemyImg = [];
+    }
 }
 
 
@@ -57,6 +77,8 @@ var shoot;
 var playerImg = new Image();
 var shotImg = new Image();
 var background = new Image();
+const enemyGen = new EnemyGenerator();
+const enemyMan = new EnemyManager();
 
 var beginGame = function() {
 	player = new Player();
@@ -66,13 +88,49 @@ var beginGame = function() {
     	background.src = './img/background.jpg';
 };
 
-var enemyGeneration = function() {
+var enemyGeneration = function () {
+    if (enemyGen.curNumber === enemyGen.spawnInterval) {
+        enemyGen.curNumber = 0;
+        const spawnPosY = 282 + Math.random() * 247;
+        const enemy = new Enemy(spawnPosY);
+        const enemyImg = new Image();
+        enemyImg.src = enemy.frames[0];
+        
+        enemyMan.enemy.push(enemy);
+        enemyMan.enemyImg.push(enemyImg);
+    }
 
+    enemyGen.curNumber++;
 };
 
-var enemyRedraw = function(context) {
+var enemyRedraw = function (context) {
+    for (let i = 0; i < enemyMan.enemy.length; i++) {
+        if (enemyMan.enemy[i].posX < 1280) {
+            context.drawImage(enemyMan.enemyImg[i],
+                                enemyMan.enemy[i].posX,
+                                enemyMan.enemy[i].posY);
 
+            if (enemyMan.enemyImg)
+            enemyMan.enemy[i].posX += enemyMan.enemy[i].speed;
+            enemyFrameChange(enemyMan.enemy[i], enemyMan.enemyImg[i]);
+        } else {
+            enemyMan.enemy.shift();
+            enemyMan.enemyImg.shift();
+            i -= 1;
+        }
+    }
 };
+
+const enemyFrameChange = function (enemy, enemyImg) {
+    if (enemy.curFrameInterval === 3) {
+        if (enemy.curFrame === enemy.frames.length - 1) enemy.curFrame = 0;
+        else enemy.curFrame += 1;
+        
+        enemy.curFrameInterval = 0;
+        enemyImg.src = enemy.frames[enemy.curFrame];
+    }
+    enemy.curFrameInterval += 1;
+}
 
 var playerRedraw = function(context) {
     	context.drawImage(background, 0, 0, 1280, 640);
@@ -183,6 +241,7 @@ requestAnimationFrame(function redraw() {
 	shoot.interval++;
 	playerActions();
 	playerRedraw(ctx);
+    enemyGeneration();
 	enemyRedraw(ctx);
 	requestAnimationFrame(redraw);
 });
