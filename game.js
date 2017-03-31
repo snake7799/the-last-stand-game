@@ -291,7 +291,7 @@ document.addEventListener('keypress', function (e) {
     }
     if (e.keyCode == 27 & isStoped != false) {
         isStoped = false;
-        requestAnimationFrame(gameLoop);
+        requestAnimationFrame(redraw);
         return;
     }
 }, true);
@@ -304,7 +304,7 @@ document.addEventListener('keyup', function (e) {
     keyState[e.keyCode || e.which] = false;
 }, true);
 
-const gameLoop = function gameLoop() {
+const redraw = function redraw() {
     ctx.drawImage(background, 0, 0);
     drawInterface(ctx);
 
@@ -319,7 +319,7 @@ const gameLoop = function gameLoop() {
         return;
     }
 
-    requestAnimationFrame(gameLoop);
+    requestAnimationFrame(redraw);
 }
 
 const beginGame = function () {
@@ -330,5 +330,5 @@ const beginGame = function () {
     creatureManager.objects.push(player);
     weaponManager.objects.push(gun);
 
-    requestAnimationFrame(gameLoop);
+    requestAnimationFrame(redraw);
 }
