@@ -155,9 +155,9 @@ class Creature extends MovingObject {
 }
 
 class Player extends Creature {
-    constructor(x, y, speed, health, frameSets, initFrames, frameIntervals, gun) {
+    constructor(x, y, speed, health, frameSets, initFrames, frameIntervals, guns) {
         super(x, y, speed, health, frameSets, initFrames, frameIntervals);
-        this.gun = gun;
+        this.guns = guns;
     }
 
     handle(context) {
@@ -166,29 +166,27 @@ class Player extends Creature {
     }
 
     controls() {
-        if (keyState[38] && keyState[37] && this.y > 282 && this.x > -10 && this.canMoveBackword == true && this.canMoveUp == true) {
+        if (keyState[38] && keyState[37] && this.y > 282 && this.x > -10) {
             this.run(-this.speed, -this.speed);
-        } else if (keyState[40] && keyState[37] && this.y < 585 && this.x > -10 && this.canMoveBackword == true && this.canMoveDown == true) {
+        } else if (keyState[40] && keyState[37] && this.y < 585 && this.x > -10) {
             this.run(-this.speed, this.speed);
-        } else if (keyState[40] && keyState[39] && this.y < 585 && this.x < 1365 && this.canMoveForeword == true && this.canMoveDown == true) {
+        } else if (keyState[40] && keyState[39] && this.y < 585 && this.x < 1365) {
             this.run(this.speed, this.speed);
-        } else if (keyState[38] && keyState[39] && this.y > 282 && this.x < 1365 && this.canMoveForeword == true && this.canMoveUp == true) {
+        } else if (keyState[38] && keyState[39] && this.y > 282 && this.x < 1365) {
             this.run(this.speed, -this.speed);
-        } else if (keyState[37] && this.x > -10 && this.canMoveBackword == true) {
+        } else if (keyState[37] && this.x > -10) {
             this.run(-this.speed * 1.7, 0);
-        } else if (keyState[39] && this.x < 1365 && this.canMoveForeword == true) {
+        } else if (keyState[39] && this.x < 1365) {
             this.run(this.speed * 1.7, 0);
-        } else if (keyState[40] && this.y < 585 && this.canMoveDown == true) {
+        } else if (keyState[40] && this.y < 585) {
             this.run(0, this.speed * 1.7);
-        } else if (keyState[38] && this.y > 282 && this.canMoveUp == true) {
+        } else if (keyState[38] && this.y > 282) {
             this.run(0, -this.speed * 1.7);
         } else if (!keyState[32] || this.currentFrames === this.frameSets.run) {
             this.stand();
         }
-        if (keyState[32]) {
-            this.shoot();
-            this.frameChange(true);
-        }
+
+        if (keyState[32]) this.shoot();else if (keyState[49]) this.changeWeapon(0);else if (keyState[50]) this.changeWeapon(1);
     }
 
     stand() {
@@ -199,14 +197,22 @@ class Player extends Creature {
     shoot() {
         if (this.currentFrames === this.frameSets.stand) {
             this.currentFrames = this.frameSets.shoot;
-            this.frameInterval = this.frameIntervals.shoot;
+            this.frameInterval = this.frameIntervals.shoot[this.guns.indexOf(this.currentGun)];
             this.frameIntervalCounter = 0;
-            this.currentFrame = 0;
+            this.currentFrame = -1;
         }
+        if (this.currentGun.readyToShoot) {
+            this.currentGun.shoot(this.x + 105, this.y + 35);
+            this.currentFrame = -1;
+            this.frameIntervalCounter = 0;
+        }
+        if (!this.currentGun.readyToShoot && this.currentFrame < this.currentFrames.length - 1) {
+            this.frameChange(true);
+        }
+    }
 
-        if (this.gun.readyToShoot) {
-            this.gun.shoot(this.x + 105, this.y + 35);
-        }
+    changeWeapon(gunIndex) {
+        if (this.guns[gunIndex]) this.currentGun = this.guns[gunIndex];
     }
 }
 
@@ -278,25 +284,21 @@ class Gun extends ObjectGenerator {
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return ObjectManager; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return BulletManager; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return CreatureManager; });
-class ObjectManager {
-    constructor() {
-        this.objects = [];
-    }
-
+class ObjectManager extends Array {
     run() {
-        for (let i = 0; i < this.objects.length; i++) {
-            this.objects[i].handle();
+        for (let i = 0; i < this.length; i++) {
+            this[i].handle();
         }
     }
 }
 
 class BulletManager extends ObjectManager {
     run(context) {
-        for (let i = 0; i < this.objects.length; i++) {
-            if (this.objects[i].x < 1480) {
-                this.objects[i].handle(context);
+        for (let i = 0; i < this.length; i++) {
+            if (this[i].x < 1480) {
+                this[i].handle(context);
             } else {
-                this.objects.splice(i, 1);
+                this.splice(i, 1);
                 i -= 1;
             }
         }
@@ -305,14 +307,14 @@ class BulletManager extends ObjectManager {
 
 class CreatureManager extends ObjectManager {
     run(context) {
-        this.objects.sort((a, b) => {
+        this.sort((a, b) => {
             if (a.y > b.y) return 1;else return -1;
         });
-        for (let i = 0; i < this.objects.length; i++) {
-            if (this.objects[i].x > -100) {
-                this.objects[i].handle(context);
+        for (let i = 0; i < this.length; i++) {
+            if (this[i].x > -100) {
+                this[i].handle(context);
             } else {
-                this.objects.splice(i, 1);
+                this.splice(i, 1);
                 i -= 1;
             }
         }
@@ -348,7 +350,7 @@ const playerConfig = [80, 400, 2, 3, {
     shoot: ['./img/hero_fire/hero_fire_1.png', './img/hero_fire/hero_fire_2.png', './img/hero_fire/hero_fire_3.png']
 }, 'stand', {
     run: 10,
-    shoot: 5
+    shoot: [2, 3]
 }];
 const enemyConfig = [-0.8, 1, {
     run: ['./img/enemy_run/enemy_run_1.png', './img/enemy_run/enemy_run_2.png', './img/enemy_run/enemy_run_3.png', './img/enemy_run/enemy_run_4.png', './img/enemy_run/enemy_run_5.png']
@@ -356,14 +358,14 @@ const enemyConfig = [-0.8, 1, {
     run: 10
 }];
 const enemyGeneratorConfig = [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["a" /* Enemy */], enemyConfig, 150];
-const bulletConfig = [20, './img/player/weapon_fire.png', 1];
-const gunConfig = [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfig, 20];
+const bulletConfigs = [[20, './img/player/weapon_fire.png', 1], [15, './img/player/weapon_fire2.png', 2]];
+const gunConfigs = [[__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfigs[0], 20], [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfigs[1], 25]];
 const creatureManager = new __WEBPACK_IMPORTED_MODULE_1__objectManager_js__["a" /* CreatureManager */]();
 const bulletManger = new __WEBPACK_IMPORTED_MODULE_1__objectManager_js__["b" /* BulletManager */]();
 const weaponManager = new __WEBPACK_IMPORTED_MODULE_1__objectManager_js__["c" /* ObjectManager */]();
-const gun = new __WEBPACK_IMPORTED_MODULE_2__objectGenerator_js__["a" /* Gun */](bulletManger.objects, ...gunConfig);
-const player = new __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["c" /* Player */](...playerConfig, gun);
-const enemyGenerator = new __WEBPACK_IMPORTED_MODULE_2__objectGenerator_js__["b" /* EnemyGenerator */](creatureManager.objects, ...enemyGeneratorConfig);
+const gun = new __WEBPACK_IMPORTED_MODULE_2__objectGenerator_js__["a" /* Gun */](bulletManger, ...gunConfigs[0]);
+const player = new __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["c" /* Player */](...playerConfig, weaponManager);
+const enemyGenerator = new __WEBPACK_IMPORTED_MODULE_2__objectGenerator_js__["b" /* EnemyGenerator */](creatureManager, ...enemyGeneratorConfig);
 let isStoped = false;
 
 const drawInterface = function (context) {
@@ -393,15 +395,17 @@ document.addEventListener('keyup', function (e) {
 }, true);
 
 const checkBulletsCollisions = function () {
-    for (let j = 0; j < creatureManager.objects.length; j++) {
-        for (let i = 0; i < gun.objects.length; i++) {
-            if (creatureManager.objects[j].x - gun.objects[i].x < 0 && creatureManager.objects[j].x - gun.objects[i].x > -120 && creatureManager.objects[j].y - gun.objects[i].y < 0 && creatureManager.objects[j].y - gun.objects[i].y > -100) {
-                if (creatureManager.objects[j] instanceof __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["a" /* Enemy */]) {
-                    creatureManager.objects[j].health -= gun.objects[i].damage;
-                    if (creatureManager.objects[j].health <= 0) {
-                        creatureManager.objects.splice(j, 1);
+    for (let j = 0; j < creatureManager.length; j++) {
+        for (let i = 0; i < bulletManger.length; i++) {
+            if (creatureManager[j].x - bulletManger[i].x < 0 && creatureManager[j].x - bulletManger[i].x > -120 && creatureManager[j].y - bulletManger[i].y < 0 && creatureManager[j].y - bulletManger[i].y > -100) {
+                if (creatureManager[j] instanceof __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["a" /* Enemy */]) {
+                    creatureManager[j].health -= bulletManger[i].damage;
+                    if (creatureManager[j].health <= 0) {
+                        creatureManager.splice(j, 1);
+                        j -= 1;
                     }
-                    gun.objects.splice(i, 1);
+                    bulletManger.splice(i, 1);
+                    i -= 1;
                 }
             }
         }
@@ -413,26 +417,26 @@ const checkPlayerCollisions = function () {
     player.canMoveBackword = true;
     player.canMoveDown = true;
     player.canMoveUp = true;
-    for (let i = 0; i < creatureManager.objects.length; i++) {
-        creatureManager.objects[i].isCollided = false;
-        if (creatureManager.objects[i].x - player.x >= 60 && creatureManager.objects[i].x - player.x <= 70 && creatureManager.objects[i].y - player.y < 30 && creatureManager.objects[i].y - player.y > -30) {
-            if (creatureManager.objects[i] instanceof __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["a" /* Enemy */]) {
-                creatureManager.objects[i].isCollided = true;
+    for (let i = 0; i < creatureManager.length; i++) {
+        creatureManager[i].isCollided = false;
+        if (creatureManager[i].x - player.x >= 60 && creatureManager[i].x - player.x <= 70 && creatureManager[i].y - player.y < 30 && creatureManager[i].y - player.y > -30) {
+            if (creatureManager[i] instanceof __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["a" /* Enemy */]) {
+                creatureManager[i].isCollided = true;
                 player.canMoveForeword = false;
             }
         }
-        if (creatureManager.objects[i].x - player.x >= -70 && creatureManager.objects[i].x - player.x <= -60 && creatureManager.objects[i].y - player.y < 30 && creatureManager.objects[i].y - player.y > -30) {
-            if (creatureManager.objects[i] instanceof __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["a" /* Enemy */]) {
+        if (creatureManager[i].x - player.x >= -70 && creatureManager[i].x - player.x <= -60 && creatureManager[i].y - player.y < 30 && creatureManager[i].y - player.y > -30) {
+            if (creatureManager[i] instanceof __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["a" /* Enemy */]) {
                 player.canMoveBackword = false;
             }
         }
-        if (creatureManager.objects[i].y - player.y <= 20 && creatureManager.objects[i].y - player.y >= 10 && creatureManager.objects[i].x - player.x <= 70 && creatureManager.objects[i].x - player.x >= -70) {
-            if (creatureManager.objects[i] instanceof __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["a" /* Enemy */]) {
+        if (creatureManager[i].y - player.y <= 20 && creatureManager[i].y - player.y >= 10 && creatureManager[i].x - player.x <= 70 && creatureManager[i].x - player.x >= -70) {
+            if (creatureManager[i] instanceof __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["a" /* Enemy */]) {
                 player.canMoveDown = false;
             }
         }
-        if (player.y - creatureManager.objects[i].y <= 20 && player.y - creatureManager.objects[i].y >= 10 && creatureManager.objects[i].x - player.x <= 70 && creatureManager.objects[i].x - player.x >= -70) {
-            if (creatureManager.objects[i] instanceof __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["a" /* Enemy */]) {
+        if (player.y - creatureManager[i].y <= 20 && player.y - creatureManager[i].y >= 10 && creatureManager[i].x - player.x <= 70 && creatureManager[i].x - player.x >= -70) {
+            if (creatureManager[i] instanceof __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["a" /* Enemy */]) {
                 player.canMoveUp = false;
             }
         }
@@ -463,8 +467,10 @@ const redraw = function () {
     background.src = './img/background.png';
     healthImage.src = './img/interface/health.png';
 
-    creatureManager.objects.push(player);
-    weaponManager.objects.push(gun);
+    creatureManager.push(player);
+    weaponManager.push(gun);
+    weaponManager.push(new __WEBPACK_IMPORTED_MODULE_2__objectGenerator_js__["a" /* Gun */](bulletManger, ...gunConfigs[1]));
+    player.currentGun = player.guns[0];
 
     requestAnimationFrame(redraw);
 })();
