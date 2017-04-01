@@ -78,9 +78,9 @@ class Creature extends MovingObject {
 }
 
 class Player extends Creature {
-    constructor(x, y, speed, health, frameSets, initFrames, frameIntervals, gun) {
+    constructor(x, y, speed, health, frameSets, initFrames, frameIntervals, guns) {
         super(x, y, speed, health, frameSets, initFrames, frameIntervals);
-        this.gun = gun;
+        this.guns = guns;
     }
 
     handle(context) {
@@ -112,12 +112,11 @@ class Player extends Creature {
         } else if (!keyState[32] || this.currentFrames === this.frameSets.run) {
             this.stand();
         }
-        if (keyState[32]) {
-            this.shoot();
-            this.frameChange(true);
-        }
+        
+        if (keyState[32]) this.shoot(); 
+        else if (keyState[49]) this.changeWeapon(0);
+        else if (keyState[50]) this.changeWeapon(1);
     }
-
 
     stand() {
         this.currentFrames = this.frameSets.stand;
@@ -127,14 +126,22 @@ class Player extends Creature {
     shoot() {
         if (this.currentFrames === this.frameSets.stand) {
             this.currentFrames = this.frameSets.shoot;
-            this.frameInterval = this.frameIntervals.shoot;
+            this.frameInterval = this.frameIntervals.shoot[this.guns.indexOf(this.currentGun)];
             this.frameIntervalCounter = 0;
-            this.currentFrame = 0;
+            this.currentFrame = -1;
         }
+        if (this.currentGun.readyToShoot) {
+            this.currentGun.shoot(this.x + 105, this.y + 35);
+            this.currentFrame = -1;
+            this.frameIntervalCounter = 0;
+        }
+        if (!this.currentGun.readyToShoot && this.currentFrame < this.currentFrames.length - 1) {
+            this.frameChange(true);
+        }
+    }
 
-        if (this.gun.readyToShoot) {
-            this.gun.shoot(this.x + 105, this.y + 35);
-        }
+    changeWeapon(gunIndex) {
+        if (this.guns[gunIndex]) this.currentGun = this.guns[gunIndex];
     }
 }
 
