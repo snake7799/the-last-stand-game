@@ -113,6 +113,11 @@ class Creature extends MovingObject {
         this.frameInterval = this.frameIntervals[initFrames];
         this.frameIntervalCounter = 0;
         this.currentFrame = 0;
+        this.isCollided = false;
+        this.canMoveForeword = true;
+        this.canMoveBackword = true;
+        this.canMoveUp = true;
+        this.canMoveDown = true;
     }
 
     frameChange(isForward) {
@@ -133,6 +138,9 @@ class Creature extends MovingObject {
     }
 
     run(deltaX, deltaY) {
+        if (this.isCollided) {
+            return;
+        }
         if (this.currentFrames !== this.frameSets.run) {
             this.currentFrames = this.frameSets.run;
             this.frameInterval = this.frameIntervals.run;
@@ -158,21 +166,21 @@ class Player extends Creature {
     }
 
     controls() {
-        if (keyState[38] && keyState[37] && this.y > 282 && this.x > -10) {
+        if (keyState[38] && keyState[37] && this.y > 282 && this.x > -10 && this.canMoveBackword == true && this.canMoveUp == true) {
             this.run(-this.speed, -this.speed);
-        } else if (keyState[40] && keyState[37] && this.y < 585 && this.x > -10) {
+        } else if (keyState[40] && keyState[37] && this.y < 585 && this.x > -10 && this.canMoveBackword == true && this.canMoveDown == true) {
             this.run(-this.speed, this.speed);
-        } else if (keyState[40] && keyState[39] && this.y < 585 && this.x < 1365) {
+        } else if (keyState[40] && keyState[39] && this.y < 585 && this.x < 1365 && this.canMoveForeword == true && this.canMoveDown == true) {
             this.run(this.speed, this.speed);
-        } else if (keyState[38] && keyState[39] && this.y > 282 && this.x < 1365) {
+        } else if (keyState[38] && keyState[39] && this.y > 282 && this.x < 1365 && this.canMoveForeword == true && this.canMoveUp == true) {
             this.run(this.speed, -this.speed);
-        } else if (keyState[37] && this.x > -10) {
+        } else if (keyState[37] && this.x > -10 && this.canMoveBackword == true) {
             this.run(-this.speed * 1.7, 0);
-        } else if (keyState[39] && this.x < 1365) {
+        } else if (keyState[39] && this.x < 1365 && this.canMoveForeword == true) {
             this.run(this.speed * 1.7, 0);
-        } else if (keyState[40] && this.y < 585) {
+        } else if (keyState[40] && this.y < 585 && this.canMoveDown == true) {
             this.run(0, this.speed * 1.7);
-        } else if (keyState[38] && this.y > 282) {
+        } else if (keyState[38] && this.y > 282 && this.canMoveUp == true) {
             this.run(0, -this.speed * 1.7);
         } else if (!keyState[32] || this.currentFrames === this.frameSets.run) {
             this.stand();
@@ -384,10 +392,58 @@ document.addEventListener('keyup', function (e) {
     __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["d" /* keyState */][e.keyCode || e.which] = false;
 }, true);
 
+const checkBulletsCollisions = function () {
+    for (let j = 0; j < creatureManager.objects.length; j++) {
+        for (let i = 0; i < gun.objects.length; i++) {
+            if (creatureManager.objects[j].x - gun.objects[i].x < 0 && creatureManager.objects[j].x - gun.objects[i].x > -120 && creatureManager.objects[j].y - gun.objects[i].y < 0 && creatureManager.objects[j].y - gun.objects[i].y > -100) {
+                if (creatureManager.objects[j] instanceof __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["a" /* Enemy */]) {
+                    creatureManager.objects[j].health -= gun.objects[i].damage;
+                    if (creatureManager.objects[j].health <= 0) {
+                        creatureManager.objects.splice(j, 1);
+                    }
+                    gun.objects.splice(i, 1);
+                }
+            }
+        }
+    }
+};
+
+const checkPlayerCollisions = function () {
+    player.canMoveForeword = true;
+    player.canMoveBackword = true;
+    player.canMoveDown = true;
+    player.canMoveUp = true;
+    for (let i = 0; i < creatureManager.objects.length; i++) {
+        creatureManager.objects[i].isCollided = false;
+        if (creatureManager.objects[i].x - player.x >= 60 && creatureManager.objects[i].x - player.x <= 70 && creatureManager.objects[i].y - player.y < 30 && creatureManager.objects[i].y - player.y > -30) {
+            if (creatureManager.objects[i] instanceof __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["a" /* Enemy */]) {
+                creatureManager.objects[i].isCollided = true;
+                player.canMoveForeword = false;
+            }
+        }
+        if (creatureManager.objects[i].x - player.x >= -70 && creatureManager.objects[i].x - player.x <= -60 && creatureManager.objects[i].y - player.y < 30 && creatureManager.objects[i].y - player.y > -30) {
+            if (creatureManager.objects[i] instanceof __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["a" /* Enemy */]) {
+                player.canMoveBackword = false;
+            }
+        }
+        if (creatureManager.objects[i].y - player.y <= 20 && creatureManager.objects[i].y - player.y >= 10 && creatureManager.objects[i].x - player.x <= 70 && creatureManager.objects[i].x - player.x >= -70) {
+            if (creatureManager.objects[i] instanceof __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["a" /* Enemy */]) {
+                player.canMoveDown = false;
+            }
+        }
+        if (player.y - creatureManager.objects[i].y <= 20 && player.y - creatureManager.objects[i].y >= 10 && creatureManager.objects[i].x - player.x <= 70 && creatureManager.objects[i].x - player.x >= -70) {
+            if (creatureManager.objects[i] instanceof __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["a" /* Enemy */]) {
+                player.canMoveUp = false;
+            }
+        }
+    }
+};
+
 const redraw = function () {
     ctx.drawImage(background, 0, 0);
     drawInterface(ctx);
 
+    checkPlayerCollisions();
     creatureManager.run(ctx);
     bulletManger.run(ctx);
     weaponManager.run();
@@ -398,7 +454,7 @@ const redraw = function () {
         ctx.fillText('pause', 740, 320);
         return;
     }
-
+    checkBulletsCollisions();
     requestAnimationFrame(redraw);
 };
 

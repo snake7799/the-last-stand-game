@@ -87,10 +87,73 @@ document.addEventListener('keyup', function (e) {
     keyState[e.keyCode || e.which] = false;
 }, true);
 
+const checkBulletsCollisions = function() {
+    for (let j = 0; j < creatureManager.objects.length; j++) {
+        for (let i = 0; i < gun.objects.length; i++) {
+            if ((creatureManager.objects[j].x - gun.objects[i].x < 0 &&
+                    creatureManager.objects[j].x - gun.objects[i].x > -120) &&
+                (creatureManager.objects[j].y - gun.objects[i].y < 0 &&
+                    creatureManager.objects[j].y - gun.objects[i].y > -100)) {
+                if (creatureManager.objects[j] instanceof Enemy) {
+                    creatureManager.objects[j].health -= gun.objects[i].damage;
+                    if (creatureManager.objects[j].health <= 0) {
+                        creatureManager.objects.splice(j, 1);
+                    }
+                    gun.objects.splice(i, 1);
+                }
+            }
+        }
+    }
+}
+
+const checkPlayerCollisions = function() {
+    player.canMoveForeword = true;
+    player.canMoveBackword = true;
+    player.canMoveDown = true;
+    player.canMoveUp = true;
+    for (let i = 0; i < creatureManager.objects.length; i++) {
+        creatureManager.objects[i].isCollided = false;
+        if ((creatureManager.objects[i].x - player.x >= 60 &&
+                creatureManager.objects[i].x - player.x <= 70) &&
+            (creatureManager.objects[i].y - player.y < 30 &&
+                creatureManager.objects[i].y - player.y > -30)) {
+            if (creatureManager.objects[i] instanceof Enemy) {
+                creatureManager.objects[i].isCollided = true;
+                player.canMoveForeword = false;
+            }
+        }
+        if ((creatureManager.objects[i].x - player.x >= -70 &&
+                creatureManager.objects[i].x - player.x <= -60) &&
+            (creatureManager.objects[i].y - player.y < 30 &&
+                creatureManager.objects[i].y - player.y > -30)) {
+            if (creatureManager.objects[i] instanceof Enemy) {
+                player.canMoveBackword = false;
+            }
+        }
+        if ((creatureManager.objects[i].y - player.y <= 20 &&
+                creatureManager.objects[i].y - player.y >= 10) &&
+            (creatureManager.objects[i].x - player.x <= 70 &&
+                creatureManager.objects[i].x - player.x >= -70)) {
+            if (creatureManager.objects[i] instanceof Enemy) {
+                player.canMoveDown = false;
+            }
+        }
+        if ((player.y - creatureManager.objects[i].y <= 20 &&
+                player.y - creatureManager.objects[i].y >= 10) &&
+            (creatureManager.objects[i].x - player.x <= 70 &&
+                creatureManager.objects[i].x - player.x >= -70)) {
+            if (creatureManager.objects[i] instanceof Enemy) {
+                player.canMoveUp = false;
+            }
+        }
+    }
+}
+
 const redraw = function() {
     ctx.drawImage(background, 0, 0);
     drawInterface(ctx);
 
+    checkPlayerCollisions();
     creatureManager.run(ctx);
     bulletManger.run(ctx);
     weaponManager.run();
@@ -101,7 +164,7 @@ const redraw = function() {
         ctx.fillText('pause', 740, 320);
         return;
     }
-
+    checkBulletsCollisions();
     requestAnimationFrame(redraw);
 };
 
@@ -114,4 +177,4 @@ const redraw = function() {
     weaponManager.objects.push(gun);
 
     requestAnimationFrame(redraw);
-})();
+}());

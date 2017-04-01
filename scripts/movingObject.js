@@ -36,6 +36,11 @@ class Creature extends MovingObject {
         this.frameInterval = this.frameIntervals[initFrames];
         this.frameIntervalCounter = 0;
         this.currentFrame = 0;
+        this.isCollided = false;
+        this.canMoveForeword = true;
+        this.canMoveBackword = true;
+        this.canMoveUp = true;
+        this.canMoveDown = true;
     }
 
     frameChange(isForward) {
@@ -44,8 +49,7 @@ class Creature extends MovingObject {
                 if (this.currentFrame >= this.currentFrames.length - 1) {
                     this.currentFrame = 0;
                 } else this.currentFrame += 1;
-            }
-            else {
+            } else {
                 if (this.currentFrame <= 0) {
                     this.currentFrame = this.currentFrames.length - 1;
                 } else this.currentFrame -= 1;
@@ -57,6 +61,9 @@ class Creature extends MovingObject {
     }
 
     run(deltaX, deltaY) {
+        if (this.isCollided) {
+            return;
+        }
         if (this.currentFrames !== this.frameSets.run) {
             this.currentFrames = this.frameSets.run;
             this.frameInterval = this.frameIntervals.run;
@@ -82,21 +89,25 @@ class Player extends Creature {
     }
 
     controls() {
-        if (keyState[38] && keyState[37] && this.y > 282 && this.x > -10) {
+        if (keyState[38] && keyState[37] && this.y > 282 &&
+            this.x > -10 && this.canMoveBackword == true && this.canMoveUp == true) {
             this.run(-this.speed, -this.speed);
-        } else if (keyState[40] && keyState[37] && this.y < 585 && this.x > -10) {
+        } else if (keyState[40] && keyState[37] && this.y < 585 &&
+            this.x > -10 && this.canMoveBackword == true && this.canMoveDown == true) {
             this.run(-this.speed, this.speed);
-        } else if (keyState[40] && keyState[39] && this.y < 585 && this.x < 1365) {
+        } else if (keyState[40] && keyState[39] && this.y < 585 &&
+            this.x < 1365 && this.canMoveForeword == true && this.canMoveDown == true) {
             this.run(this.speed, this.speed);
-        } else if (keyState[38] && keyState[39] && this.y > 282 && this.x < 1365) {
+        } else if (keyState[38] && keyState[39] && this.y > 282 &&
+            this.x < 1365 && this.canMoveForeword == true && this.canMoveUp == true) {
             this.run(this.speed, -this.speed);
-        } else if (keyState[37] && this.x > -10) {
+        } else if (keyState[37] && this.x > -10 && this.canMoveBackword == true) {
             this.run(-this.speed * 1.7, 0);
-        } else if (keyState[39] && this.x < 1365) {
+        } else if (keyState[39] && this.x < 1365 && this.canMoveForeword == true) {
             this.run(this.speed * 1.7, 0);
-        } else if (keyState[40] && this.y < 585) {
+        } else if (keyState[40] && this.y < 585 && this.canMoveDown == true) {
             this.run(0, this.speed * 1.7);
-        } else if (keyState[38] && this.y > 282) {
+        } else if (keyState[38] && this.y > 282 && this.canMoveUp == true) {
             this.run(0, -this.speed * 1.7);
         } else if (!keyState[32] || this.currentFrames === this.frameSets.run) {
             this.stand();
@@ -106,6 +117,7 @@ class Player extends Creature {
             this.frameChange(true);
         }
     }
+
 
     stand() {
         this.currentFrames = this.frameSets.stand;
