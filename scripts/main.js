@@ -76,9 +76,10 @@ const enemyConfig = [
         attack: 2
     }];
 const enemyGeneratorConfig = [Enemy, enemyConfig, 150];
-const bulletConfigs = [[20, './img/player/weapon_fire.png', 1],
-                    [15, './img/player/weapon_fire2.png', 2]];
-const gunConfigs = [[Ammo, bulletConfigs[0], 20], [Ammo, bulletConfigs[1], 25]];
+const bulletConfigs = [[20, './img/bullet/bullet_yellow.png', 1],
+                       [15, './img/bullet/bullet_green.png', 2],
+                       [10, './img/bullet/bullet_blue.png', 3]];
+const gunConfigs = [[Ammo, bulletConfigs[0], 20], [Ammo, bulletConfigs[1], 25], [Ammo, bulletConfigs[2], 30]];
 const creatureManager = new CreatureManager();
 const bulletManger = new BulletManager();
 const weaponManager = new ObjectManager();
@@ -215,6 +216,7 @@ const redraw = function() {
     creatureManager.push(player);
     weaponManager.push(gun);
     weaponManager.push(new Gun(bulletManger, ...gunConfigs[1]));
+    weaponManager.push(new Gun(bulletManger, ...gunConfigs[2]));
     player.currentGun = player.guns[0];
 
     requestAnimationFrame(redraw);
