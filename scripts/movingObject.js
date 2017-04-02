@@ -147,7 +147,7 @@ class Player extends Creature {
             this.currentFrame = -1;
         }
         if (this.currentGun.readyToShoot) {
-            this.currentGun.shoot(this.x + 105, this.y + 35);
+            this.currentGun.shoot(this.x + 105, this.y + 49);
             this.currentFrame = -1;
             this.frameIntervalCounter = 0;
         }
