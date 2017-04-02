@@ -121,13 +121,17 @@ class Player extends Creature {
             this.run(0, this.speed * 1.7);
         } else if (keyState[38] && this.y > 282 && this.canMoveUp == true && this.isDead == false) {
             this.run(0, -this.speed * 1.7);
-        } else if (!keyState[32] || this.currentFrames === this.frameSets.run && this.isDead == false) {
+        } else if (this.currentFrames === this.frameSets.run && this.isDead == false) {
             this.stand();
+        } else if (this.currentFrames === this.frameSets.shoot &&
+            this.currentFrame < this.currentFrames.length - 1) {
+            this.frameChange(true);
         }
 
         if (keyState[32] && this.isDead == false) this.shoot();
         else if (keyState[49] && this.isDead == false) this.changeWeapon(0);
         else if (keyState[50] && this.isDead == false) this.changeWeapon(1);
+        else if (keyState[51] && this.isDead == false) this.changeWeapon(3);
     }
 
     stand() {
@@ -143,16 +147,15 @@ class Player extends Creature {
         if (this.currentFrames === this.frameSets.stand) {
             this.currentFrames = this.frameSets.shoot;
             this.frameInterval = this.frameIntervals.shoot[this.guns.indexOf(this.currentGun)];
+            this.currentFrame = 0;
             this.frameIntervalCounter = 0;
-            this.currentFrame = -1;
         }
         if (this.currentGun.readyToShoot) {
             this.currentGun.shoot(this.x + 105, this.y + 49);
-            this.currentFrame = -1;
-            this.frameIntervalCounter = 0;
-        }
-        if (!this.currentGun.readyToShoot && this.currentFrame < this.currentFrames.length - 1) {
-            this.frameChange(true);
+            if (this.currentFrames === this.frameSets.shoot) {
+                this.currentFrame = 0;
+                this.frameIntervalCounter = 0;
+            }
         }
     }
 
