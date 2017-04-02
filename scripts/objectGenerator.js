@@ -13,8 +13,10 @@ class EnemyGenerator extends ObjectGenerator {
         if (this.intervalCounter === this.interval) {
             this.intervalCounter = 0;
             const spawnPosY = 282 + Math.random() * 310;
-
-            this.objects.push(new this.objectConstructor(1580, spawnPosY, ...this.objectConfig));
+            const enemySpeed = -(Math.random() * (1.6 - 0.8) + 0.8);
+            const enemyChangeFrameInterval = (10 + enemySpeed);
+            this.objectConfig[3]['run'] = Math.floor(enemyChangeFrameInterval);
+            this.objects.push(new this.objectConstructor(1580, spawnPosY, enemySpeed, ...this.objectConfig));
         } else this.intervalCounter += 1;
     }
 }
@@ -40,4 +42,7 @@ class Gun extends ObjectGenerator {
     }
 }
 
-export {EnemyGenerator, Gun};
+export {
+    EnemyGenerator,
+    Gun
+};

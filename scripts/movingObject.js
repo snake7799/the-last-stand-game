@@ -35,8 +35,13 @@ class Creature extends MovingObject {
         this.frameIntervals = frameIntervals;
         this.frameInterval = this.frameIntervals[initFrames];
         this.frameIntervalCounter = 0;
+        this.intervalCounter = 0;
         this.currentFrame = 0;
         this.isCollided = false;
+        this.isDead = false;
+        this.isAttack = false;
+        this.isAttackComplete = false;
+        this.isCompletelyDead = false;
         this.canMoveForeword = true;
         this.canMoveBackword = true;
         this.canMoveUp = true;
@@ -61,7 +66,14 @@ class Creature extends MovingObject {
     }
 
     run(deltaX, deltaY) {
-        if (this.isCollided) {
+        if (this.isDead) {
+
+            this.death();
+            return;
+        }
+        if (this.isCollided) return;
+        if (this.isAttack) {
+            this.attack();
             return;
         }
         if (this.currentFrames !== this.frameSets.run) {
@@ -90,35 +102,39 @@ class Player extends Creature {
 
     controls() {
         if (keyState[38] && keyState[37] && this.y > 282 &&
-            this.x > -10 && this.canMoveBackword == true && this.canMoveUp == true) {
+            this.x > -10 && this.canMoveBackword == true && this.canMoveUp == true && this.isDead == false) {
             this.run(-this.speed, -this.speed);
         } else if (keyState[40] && keyState[37] && this.y < 585 &&
-            this.x > -10 && this.canMoveBackword == true && this.canMoveDown == true) {
+            this.x > -10 && this.canMoveBackword == true && this.canMoveDown == true && this.isDead == false) {
             this.run(-this.speed, this.speed);
         } else if (keyState[40] && keyState[39] && this.y < 585 &&
-            this.x < 1365 && this.canMoveForeword == true && this.canMoveDown == true) {
+            this.x < 1365 && this.canMoveForeword == true && this.canMoveDown == true && this.isDead == false) {
             this.run(this.speed, this.speed);
         } else if (keyState[38] && keyState[39] && this.y > 282 &&
-            this.x < 1365 && this.canMoveForeword == true && this.canMoveUp == true) {
+            this.x < 1365 && this.canMoveForeword == true && this.canMoveUp == true && this.isDead == false) {
             this.run(this.speed, -this.speed);
-        } else if (keyState[37] && this.x > -10 && this.canMoveBackword == true) {
+        } else if (keyState[37] && this.x > -10 && this.canMoveBackword == true && this.isDead == false) {
             this.run(-this.speed * 1.7, 0);
-        } else if (keyState[39] && this.x < 1365 && this.canMoveForeword == true) {
+        } else if (keyState[39] && this.x < 1365 && this.canMoveForeword == true && this.isDead == false) {
             this.run(this.speed * 1.7, 0);
-        } else if (keyState[40] && this.y < 585 && this.canMoveDown == true) {
+        } else if (keyState[40] && this.y < 585 && this.canMoveDown == true && this.isDead == false) {
             this.run(0, this.speed * 1.7);
-        } else if (keyState[38] && this.y > 282 && this.canMoveUp == true) {
+        } else if (keyState[38] && this.y > 282 && this.canMoveUp == true && this.isDead == false) {
             this.run(0, -this.speed * 1.7);
-        } else if (!keyState[32] || this.currentFrames === this.frameSets.run) {
+        } else if (!keyState[32] || this.currentFrames === this.frameSets.run && this.isDead == false) {
             this.stand();
         }
-        
-        if (keyState[32]) this.shoot(); 
-        else if (keyState[49]) this.changeWeapon(0);
-        else if (keyState[50]) this.changeWeapon(1);
+
+        if (keyState[32] && this.isDead == false) this.shoot();
+        else if (keyState[49] && this.isDead == false) this.changeWeapon(0);
+        else if (keyState[50] && this.isDead == false) this.changeWeapon(1);
     }
 
     stand() {
+        if (this.isDead) {
+            this.death();
+            return;
+        }
         this.currentFrames = this.frameSets.stand;
         this.image.src = this.currentFrames[0];
     }
@@ -143,12 +159,65 @@ class Player extends Creature {
     changeWeapon(gunIndex) {
         if (this.guns[gunIndex]) this.currentGun = this.guns[gunIndex];
     }
+
+    death(){
+        if (this.currentFrame == this.currentFrames.length - 1) {
+            return;
+        }
+        if(this.currentFrames !== this.frameSets.die) {
+            this.currentFrames = this.frameSets.die;
+            this.frameInterval = this.frameIntervals.die;
+            this.frameIntervalCounter = 0;
+            this.currentFrame = 0;
+            this.image.src = this.currentFrames[this.currentFrame];
+        } else {
+            this.frameChange(true);
+        }
+    }
 }
 
 class Enemy extends Creature {
     handle(context) {
         this.draw(context);
         this.run(this.speed, 0);
+    }
+
+    death() {
+        if(this.currentFrames !== this.frameSets.die) {
+            this.currentFrames = this.frameSets.die;
+            this.frameInterval = this.frameIntervals.die;
+            this.frameIntervalCounter = 0;
+            this.currentFrame = 0;
+            this.image.src = this.currentFrames[this.currentFrame];
+        } else {
+            this.frameChange(true);
+        }
+        if (this.currentFrame == this.currentFrames.length - 1) {
+            this.isCompletelyDead = true;
+        }
+    }
+
+    attack() {
+        if (this.intervalCounter != 0) {
+            this.intervalCounter -= 1;
+        } else {
+            if (this.currentFrames !== this.frameSets.attack) {
+            this.currentFrames = this.frameSets.attack;
+            this.frameInterval = this.frameIntervals.attack;
+            this.frameIntervalCounter = 0;
+            this.currentFrame = 0;
+            this.image.src = this.currentFrames[this.currentFrame];
+            } else {
+                this.frameChange(true);
+            }
+        }
+        if (this.currentFrame == this.currentFrames.length - 1) {
+            this.currentFrame = 0;
+            this.image.src = this.currentFrames[0];
+            this.intervalCounter = 50;
+            this.isAttackComplete = true;
+            this.isAttack = false;
+        }
     }
 }
 
