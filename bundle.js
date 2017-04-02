@@ -218,7 +218,7 @@ class Player extends Creature {
             this.currentFrame = -1;
         }
         if (this.currentGun.readyToShoot) {
-            this.currentGun.shoot(this.x + 105, this.y + 35);
+            this.currentGun.shoot(this.x + 105, this.y + 49);
             this.currentFrame = -1;
             this.frameIntervalCounter = 0;
         }
@@ -441,8 +441,8 @@ const enemyConfig = [1, {
     attack: 2
 }];
 const enemyGeneratorConfig = [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["a" /* Enemy */], enemyConfig, 150];
-const bulletConfigs = [[20, './img/player/weapon_fire.png', 1], [15, './img/player/weapon_fire2.png', 2]];
-const gunConfigs = [[__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfigs[0], 20], [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfigs[1], 25]];
+const bulletConfigs = [[20, './img/bullet/bullet_yellow.png', 1], [15, './img/bullet/bullet_green.png', 2], [10, './img/bullet/bullet_blue.png', 3]];
+const gunConfigs = [[__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfigs[0], 20], [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfigs[1], 25], [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfigs[2], 30]];
 const creatureManager = new __WEBPACK_IMPORTED_MODULE_1__objectManager_js__["a" /* CreatureManager */]();
 const bulletManger = new __WEBPACK_IMPORTED_MODULE_1__objectManager_js__["b" /* BulletManager */]();
 const weaponManager = new __WEBPACK_IMPORTED_MODULE_1__objectManager_js__["c" /* ObjectManager */]();
@@ -560,6 +560,7 @@ const redraw = function () {
     creatureManager.push(player);
     weaponManager.push(gun);
     weaponManager.push(new __WEBPACK_IMPORTED_MODULE_2__objectGenerator_js__["a" /* Gun */](bulletManger, ...gunConfigs[1]));
+    weaponManager.push(new __WEBPACK_IMPORTED_MODULE_2__objectGenerator_js__["a" /* Gun */](bulletManger, ...gunConfigs[2]));
     player.currentGun = player.guns[0];
 
     requestAnimationFrame(redraw);
