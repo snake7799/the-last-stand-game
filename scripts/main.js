@@ -29,26 +29,51 @@ const playerConfig = [80,
             './img/hero_run/hero_run_6.png'],
         shoot: ['./img/hero_fire/hero_fire_1.png',
             './img/hero_fire/hero_fire_2.png',
-            './img/hero_fire/hero_fire_3.png']
+            './img/hero_fire/hero_fire_3.png'],
+        die: ['./img/hero_die/hero_die_1.png',
+            './img/hero_die/hero_die_2.png',
+            './img/hero_die/hero_die_3.png',
+            './img/hero_die/hero_die_4.png',
+            './img/hero_die/hero_die_5.png',
+            './img/hero_die/hero_die_6.png',
+            './img/hero_die/hero_die_7.png',
+            './img/hero_die/hero_die_8.png',]
     },
     'stand',
     {
         run: 10,
-        shoot: [2, 3]
+        shoot: [2, 3],
+        die: 10
     }];
 const enemyConfig = [
-    -0.8,
     1,
     {
         run: ['./img/enemy_run/enemy_run_1.png',
             './img/enemy_run/enemy_run_2.png',
             './img/enemy_run/enemy_run_3.png',
             './img/enemy_run/enemy_run_4.png',
-            './img/enemy_run/enemy_run_5.png']
+            './img/enemy_run/enemy_run_5.png'],
+        die: ['./img/enemy_die/enemy_die_1.png',
+            './img/enemy_die/enemy_die_2.png',
+            './img/enemy_die/enemy_die_3.png',
+            './img/enemy_die/enemy_die_4.png',
+            './img/enemy_die/enemy_die_5.png',
+            './img/enemy_die/enemy_die_6.png',
+            './img/enemy_die/enemy_die_7.png',
+            './img/enemy_die/enemy_die_8.png',
+            './img/enemy_die/enemy_die_9.png',
+            './img/enemy_die/enemy_die_10.png'],
+        attack: ['./img/enemy_attack/enemy_attack_1.png',
+                './img/enemy_attack/enemy_attack_2.png',
+                './img/enemy_attack/enemy_attack_3.png',
+                './img/enemy_attack/enemy_attack_4.png',
+                './img/enemy_attack/enemy_attack_5.png']
     },
     'run',
     {
-        run: 10
+        run: 10,
+        die: 5,
+        attack: 2
     }];
 const enemyGeneratorConfig = [Enemy, enemyConfig, 150];
 const bulletConfigs = [[20, './img/player/weapon_fire.png', 1],
@@ -98,11 +123,14 @@ const checkBulletsCollisions = function() {
                 if (creatureManager[j] instanceof Enemy) {
                     creatureManager[j].health -= bulletManger[i].damage;
                     if (creatureManager[j].health <= 0) {
-                        creatureManager.splice(j, 1);
+                        creatureManager[j].isDead = true;
                     }
                     bulletManger.splice(i, 1);
                 }
             }
+        }
+        if(creatureManager[j].isCompletelyDead == true){
+            creatureManager.splice(j, 1);
         }
     }
 }
@@ -117,16 +145,18 @@ const checkPlayerCollisions = function() {
         if ((creatureManager[i].x - player.x >= 60 &&
                 creatureManager[i].x - player.x <= 70) &&
             (creatureManager[i].y - player.y < 30 &&
-                creatureManager[i].y - player.y > -30)) {
+                creatureManager[i].y - player.y > -30) &&
+            (player.isDead == false)) {
             if (creatureManager[i] instanceof Enemy) {
-                creatureManager[i].isCollided = true;
+                creatureManager[i].isAttack = true;
                 player.canMoveForeword = false;
             }
         }
         if ((creatureManager[i].x - player.x >= -70 &&
                 creatureManager[i].x - player.x <= -60) &&
             (creatureManager[i].y - player.y < 30 &&
-                creatureManager[i].y - player.y > -30)) {
+                creatureManager[i].y - player.y > -30) &&
+            (player.isDead == false)) {
             if (creatureManager[i] instanceof Enemy) {
                 player.canMoveBackword = false;
             }
@@ -134,7 +164,8 @@ const checkPlayerCollisions = function() {
         if ((creatureManager[i].y - player.y <= 20 &&
                 creatureManager[i].y - player.y >= 10) &&
             (creatureManager[i].x - player.x <= 70 &&
-                creatureManager[i].x - player.x >= -70)) {
+                creatureManager[i].x - player.x >= -70) &&
+            (player.isDead == false)) {
             if (creatureManager[i] instanceof Enemy) {
                 player.canMoveDown = false;
             }
@@ -142,10 +173,15 @@ const checkPlayerCollisions = function() {
         if ((player.y - creatureManager[i].y <= 20 &&
                 player.y - creatureManager[i].y >= 10) &&
             (creatureManager[i].x - player.x <= 70 &&
-                creatureManager[i].x - player.x >= -70)) {
+                creatureManager[i].x - player.x >= -70) &&
+            (player.isDead == false)) {
             if (creatureManager[i] instanceof Enemy) {
                 player.canMoveUp = false;
             }
+        }
+        if (creatureManager[i].isAttackComplete) {
+            creatureManager[i].isAttackComplete = false;
+            if(player.canMoveForeword == false) player.health -= 1;
         }
     }
 }
@@ -159,7 +195,9 @@ const redraw = function() {
     bulletManger.run(ctx);
     weaponManager.run();
     enemyGenerator.run();
-
+    if(player.health < 1) {
+        player.isDead = true;
+    }
     if (isStoped) {
         ctx.fillStyle = 'red';
         ctx.fillText('pause', 740, 320);

@@ -1,3 +1,5 @@
+import { Player } from './movingObject.js';
+
 class ObjectManager extends Array {
     run() {
         for (let i = 0; i < this.length; i++) {
@@ -29,6 +31,9 @@ class CreatureManager extends ObjectManager {
             if (this[i].x > -100) {
                 this[i].handle(context);
             } else {
+                this.forEach((item, i, arr) => {
+                    if(item instanceof Player) arr[i].health -= 1;
+                })
                 this.splice(i, 1);
                 i -= 1;
             }
