@@ -12,7 +12,7 @@ class EnemyGenerator extends ObjectGenerator {
     run() {
         if (this.intervalCounter === this.interval) {
             this.intervalCounter = 0;
-            const spawnPosY = 282 + Math.random() * 310;
+            const spawnPosY = 244 + Math.random() * 341;
             const enemySpeed = -(Math.random() * (1.6 - 0.8) + 0.8);
             const enemyChangeFrameInterval = (10 + enemySpeed);
             this.objectConfig[3]['run'] = Math.floor(enemyChangeFrameInterval);

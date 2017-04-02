@@ -194,11 +194,13 @@ class Player extends Creature {
             this.run(0, this.speed * 1.7);
         } else if (keyState[38] && this.y > 282 && this.canMoveUp == true && this.isDead == false) {
             this.run(0, -this.speed * 1.7);
-        } else if (!keyState[32] || this.currentFrames === this.frameSets.run && this.isDead == false) {
+        } else if (this.currentFrames === this.frameSets.run && this.isDead == false) {
             this.stand();
+        } else if (this.currentFrames === this.frameSets.shoot && this.currentFrame < this.currentFrames.length - 1) {
+            this.frameChange(true);
         }
 
-        if (keyState[32] && this.isDead == false) this.shoot();else if (keyState[49] && this.isDead == false) this.changeWeapon(0);else if (keyState[50] && this.isDead == false) this.changeWeapon(1);
+        if (keyState[32] && this.isDead == false) this.shoot();else if (keyState[49] && this.isDead == false) this.changeWeapon(0);else if (keyState[50] && this.isDead == false) this.changeWeapon(1);else if (keyState[51] && this.isDead == false) this.changeWeapon(3);
     }
 
     stand() {
@@ -214,16 +216,15 @@ class Player extends Creature {
         if (this.currentFrames === this.frameSets.stand) {
             this.currentFrames = this.frameSets.shoot;
             this.frameInterval = this.frameIntervals.shoot[this.guns.indexOf(this.currentGun)];
+            this.currentFrame = 0;
             this.frameIntervalCounter = 0;
-            this.currentFrame = -1;
         }
         if (this.currentGun.readyToShoot) {
             this.currentGun.shoot(this.x + 105, this.y + 49);
-            this.currentFrame = -1;
-            this.frameIntervalCounter = 0;
-        }
-        if (!this.currentGun.readyToShoot && this.currentFrame < this.currentFrames.length - 1) {
-            this.frameChange(true);
+            if (this.currentFrames === this.frameSets.shoot) {
+                this.currentFrame = 0;
+                this.frameIntervalCounter = 0;
+            }
         }
     }
 
@@ -315,7 +316,7 @@ class EnemyGenerator extends ObjectGenerator {
     run() {
         if (this.intervalCounter === this.interval) {
             this.intervalCounter = 0;
-            const spawnPosY = 282 + Math.random() * 310;
+            const spawnPosY = 244 + Math.random() * 341;
             const enemySpeed = -(Math.random() * (1.6 - 0.8) + 0.8);
             const enemyChangeFrameInterval = 10 + enemySpeed;
             this.objectConfig[3]['run'] = Math.floor(enemyChangeFrameInterval);
@@ -424,7 +425,7 @@ const healthImage = new Image();
 const playerConfig = [80, 400, 2, 3, {
     stand: ['./img/hero_fire/hero_fire_1.png'],
     run: ['./img/hero_run/hero_run_1.png', './img/hero_run/hero_run_2.png', './img/hero_run/hero_run_3.png', './img/hero_run/hero_run_4.png', './img/hero_run/hero_run_5.png', './img/hero_run/hero_run_6.png'],
-    shoot: ['./img/hero_fire/hero_fire_1.png', './img/hero_fire/hero_fire_2.png', './img/hero_fire/hero_fire_3.png'],
+    shoot: ['./img/hero_fire/hero_fire_1.png', './img/hero_fire/hero_fire_2.png', './img/hero_fire/hero_fire_3.png', './img/hero_fire/hero_fire_2.png', './img/hero_fire/hero_fire_1.png'],
     die: ['./img/hero_die/hero_die_1.png', './img/hero_die/hero_die_2.png', './img/hero_die/hero_die_3.png', './img/hero_die/hero_die_4.png', './img/hero_die/hero_die_5.png', './img/hero_die/hero_die_6.png', './img/hero_die/hero_die_7.png', './img/hero_die/hero_die_8.png']
 }, 'stand', {
     run: 10,
