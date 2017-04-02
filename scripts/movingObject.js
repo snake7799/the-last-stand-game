@@ -101,7 +101,7 @@ class Player extends Creature {
     }
 
     controls() {
-        if (keyState[38] && keyState[37] && this.y > 282 &&
+        if (keyState[38] && keyState[37] && this.y > 244 &&
             this.x > -10 && this.canMoveBackword == true && this.canMoveUp == true && this.isDead == false) {
             this.run(-this.speed, -this.speed);
         } else if (keyState[40] && keyState[37] && this.y < 585 &&
@@ -110,7 +110,7 @@ class Player extends Creature {
         } else if (keyState[40] && keyState[39] && this.y < 585 &&
             this.x < 1365 && this.canMoveForeword == true && this.canMoveDown == true && this.isDead == false) {
             this.run(this.speed, this.speed);
-        } else if (keyState[38] && keyState[39] && this.y > 282 &&
+        } else if (keyState[38] && keyState[39] && this.y > 244 &&
             this.x < 1365 && this.canMoveForeword == true && this.canMoveUp == true && this.isDead == false) {
             this.run(this.speed, -this.speed);
         } else if (keyState[37] && this.x > -10 && this.canMoveBackword == true && this.isDead == false) {
@@ -119,7 +119,7 @@ class Player extends Creature {
             this.run(this.speed * 1.7, 0);
         } else if (keyState[40] && this.y < 585 && this.canMoveDown == true && this.isDead == false) {
             this.run(0, this.speed * 1.7);
-        } else if (keyState[38] && this.y > 282 && this.canMoveUp == true && this.isDead == false) {
+        } else if (keyState[38] && this.y > 244 && this.canMoveUp == true && this.isDead == false) {
             this.run(0, -this.speed * 1.7);
         } else if (this.currentFrames === this.frameSets.run && this.isDead == false) {
             this.stand();
