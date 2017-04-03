@@ -451,13 +451,16 @@ const gun = new __WEBPACK_IMPORTED_MODULE_2__objectGenerator_js__["a" /* Gun */]
 const player = new __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["c" /* Player */](...playerConfig, weaponManager);
 const enemyGenerator = new __WEBPACK_IMPORTED_MODULE_2__objectGenerator_js__["b" /* EnemyGenerator */](creatureManager, ...enemyGeneratorConfig);
 let isStoped = false;
+let score = 0;
 
 const drawInterface = function (context) {
-    let healthImagePos = 1405;
+    let healthImagePos = 1415;
     for (let i = 0; i < player.health; i++) {
         context.drawImage(healthImage, healthImagePos, 30);
         healthImagePos -= 50;
     }
+
+    ctx.fillText(score, 735, 67);
 };
 
 document.addEventListener('keydown', function (e) {
@@ -493,6 +496,7 @@ const checkBulletsCollisions = function () {
         }
         if (creatureManager[j].isCompletelyDead == true) {
             creatureManager.splice(j, 1);
+            score += 10;
         }
     }
 };
@@ -545,8 +549,7 @@ const redraw = function () {
         player.isDead = true;
     }
     if (isStoped) {
-        ctx.fillStyle = 'red';
-        ctx.fillText('pause', 740, 320);
+        ctx.fillText('PAUSE', 740, 320);
         return;
     }
     checkBulletsCollisions();
@@ -554,7 +557,8 @@ const redraw = function () {
 };
 
 (function () {
-    ctx.font = '60px VT323';
+    ctx.font = '48px Agency FB';
+    ctx.fillStyle = '#ffffff';
     background.src = './img/background.png';
     healthImage.src = './img/interface/health.png';
 
