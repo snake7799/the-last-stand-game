@@ -62,6 +62,7 @@ class Gun extends ObjectGenerator {
     reload() {
         this.currentBulletsAmount = 0;
         this.intervalCounter = 0;
+        this.readyToShoot = false;
     }
 }
 
