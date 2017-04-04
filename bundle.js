@@ -194,7 +194,7 @@ class Player extends Creature {
             this.run(0, this.speed * 1.7);
         } else if (keyState[38] && this.y > 244 && this.canMoveUp == true && this.isDead == false) {
             this.run(0, -this.speed * 1.7);
-        } else if (!keyState[32] && this.currentFrames === this.frameSets.run && this.isDead == false) {
+        } else if (!keyState[32] || this.currentFrames === this.frameSets.run && this.isDead == false) {
             this.stand();
         } else if (this.currentFrames === this.frameSets.shoot && this.currentFrame < this.currentFrames.length - 1) {
             this.frameChange(true);
