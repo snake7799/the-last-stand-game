@@ -133,7 +133,7 @@ class Player extends Creature {
         else if (keyState[50] && this.isDead == false) this.changeWeapon(1);
         else if (keyState[51] && this.isDead == false) this.changeWeapon(2);
 
-        if (keyState[82]) this.currentGun.reload();
+        if (keyState[82] && this.currentGun.currentBulletsAmount !== this.currentGun.bulletCapacity) this.currentGun.reload();
     }
 
     stand() {

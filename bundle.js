@@ -202,7 +202,7 @@ class Player extends Creature {
 
         if (keyState[32] && this.isDead == false) this.shoot();else if (keyState[49] && this.isDead == false) this.changeWeapon(0);else if (keyState[50] && this.isDead == false) this.changeWeapon(1);else if (keyState[51] && this.isDead == false) this.changeWeapon(2);
 
-        if (keyState[82]) this.currentGun.reload();
+        if (keyState[82] && this.currentGun.currentBulletsAmount !== this.currentGun.bulletCapacity) this.currentGun.reload();
     }
 
     stand() {
@@ -469,7 +469,7 @@ const enemyConfig = [1, {
 }];
 const enemyGeneratorConfig = [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["a" /* Enemy */], enemyConfig, 150];
 const bulletConfigs = [[20, './img/bullet/bullet_yellow.png', 1], [15, './img/bullet/bullet_green.png', 2], [10, './img/bullet/bullet_blue.png', 3]];
-const gunConfigs = [[__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfigs[0], 20, 30, 150], [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfigs[1], 25, 30, 150], [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfigs[2], 30, 30, 150]];
+const gunConfigs = [[__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfigs[0], 20, 20, 150], [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfigs[1], 25, 20, 150], [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfigs[2], 30, 20, 150]];
 const creatureManager = new __WEBPACK_IMPORTED_MODULE_1__objectManager_js__["a" /* CreatureManager */]();
 const bulletManger = new __WEBPACK_IMPORTED_MODULE_1__objectManager_js__["b" /* BulletManager */]();
 const weaponManager = new __WEBPACK_IMPORTED_MODULE_1__objectManager_js__["c" /* ObjectManager */]();

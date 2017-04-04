@@ -81,9 +81,9 @@ const enemyGeneratorConfig = [Enemy, enemyConfig, 150];
 const bulletConfigs = [[20, './img/bullet/bullet_yellow.png', 1],
                        [15, './img/bullet/bullet_green.png', 2],
                        [10, './img/bullet/bullet_blue.png', 3]];
-const gunConfigs = [[Ammo, bulletConfigs[0], 20, 30, 150],
-                    [Ammo, bulletConfigs[1], 25, 30, 150],
-                    [Ammo, bulletConfigs[2], 30, 30, 150]];
+const gunConfigs = [[Ammo, bulletConfigs[0], 20, 20, 150],
+                    [Ammo, bulletConfigs[1], 25, 20, 150],
+                    [Ammo, bulletConfigs[2], 30, 20, 150]];
 const creatureManager = new CreatureManager();
 const bulletManger = new BulletManager();
 const weaponManager = new ObjectManager();
