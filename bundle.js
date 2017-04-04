@@ -194,13 +194,15 @@ class Player extends Creature {
             this.run(0, this.speed * 1.7);
         } else if (keyState[38] && this.y > 244 && this.canMoveUp == true && this.isDead == false) {
             this.run(0, -this.speed * 1.7);
-        } else if (!keyState[32] || this.currentFrames === this.frameSets.run && this.isDead == false) {
+        } else if (this.currentFrames === this.frameSets.run && this.isDead == false) {
             this.stand();
         } else if (this.currentFrames === this.frameSets.shoot && this.currentFrame < this.currentFrames.length - 1) {
             this.frameChange(true);
-        }
+        } else this.stand();
 
-        if (keyState[32] && this.isDead == false) this.shoot();else if (keyState[49] && this.isDead == false) this.changeWeapon(0);else if (keyState[50] && this.isDead == false) this.changeWeapon(1);else if (keyState[51] && this.isDead == false) this.changeWeapon(3);
+        if (keyState[32] && this.isDead == false) this.shoot();else if (keyState[49] && this.isDead == false) this.changeWeapon(0);else if (keyState[50] && this.isDead == false) this.changeWeapon(1);else if (keyState[51] && this.isDead == false) this.changeWeapon(2);
+
+        if (keyState[82]) this.currentGun.reload();
     }
 
     stand() {
@@ -213,7 +215,7 @@ class Player extends Creature {
     }
 
     shoot() {
-        if (this.currentFrames === this.frameSets.stand) {
+        if (this.currentFrames === this.frameSets.stand && this.currentGun.currentBulletsAmount !== 0) {
             this.currentFrames = this.frameSets.shoot;
             this.frameInterval = this.frameIntervals.shoot[this.guns.indexOf(this.currentGun)];
             this.currentFrame = 0;
@@ -300,19 +302,23 @@ class Enemy extends Creature {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return EnemyGenerator; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Gun; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return EnemyGenerator; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return Gun; });
 class ObjectGenerator {
-    constructor(objects, objectConstructor, objectConfig, interval) {
+    constructor(objects, objectConstructor, objectConfig) {
         this.objects = objects;
         this.objectConstructor = objectConstructor;
         this.objectConfig = objectConfig;
-        this.interval = interval;
         this.intervalCounter = 0;
     }
 }
 
 class EnemyGenerator extends ObjectGenerator {
+    constructor(objects, objectConstructor, objectConfig, interval) {
+        super(objects, objectConstructor, objectConfig);
+        this.interval = interval;
+    }
+
     run() {
         if (this.intervalCounter === this.interval) {
             this.intervalCounter = 0;
@@ -326,23 +332,42 @@ class EnemyGenerator extends ObjectGenerator {
 }
 
 class Gun extends ObjectGenerator {
-    constructor(objects, objectConstructor, objectConfig, interval) {
-        super(objects, objectConstructor, objectConfig, interval);
+    constructor(weaponHandler, objects, objectConstructor, objectConfig, shootingInterval, bulletCapacity, reloadingInterval) {
+        super(objects, objectConstructor, objectConfig);
+        this.weaponHandler = weaponHandler;
+        this.shootingInterval = shootingInterval;
+        this.bulletCapacity = bulletCapacity;
+        this.currentBulletsAmount = bulletCapacity;
+        this.reloadingInterval = reloadingInterval;
         this.readyToShoot = true;
     }
 
     shoot(x, y) {
         this.objects.push(new this.objectConstructor(x, y, ...this.objectConfig));
+        this.currentBulletsAmount -= 1;
+        this.intervalCounter = 0;
         this.readyToShoot = false;
     }
 
     handle() {
         if (this.readyToShoot) return;
+        if (this.currentBulletsAmount === 0 && this.weaponHandler.currentGun !== this) {
+            return;
+        }
 
-        if (this.intervalCounter === this.interval) {
-            this.intervalCounter = 0;
+        if (this.currentBulletsAmount === 0) {
+            if (this.intervalCounter === this.reloadingInterval) {
+                this.currentBulletsAmount = this.bulletCapacity;
+                this.readyToShoot = true;
+            } else this.intervalCounter += 1;
+        } else if (this.intervalCounter === this.shootingInterval) {
             this.readyToShoot = true;
         } else this.intervalCounter += 1;
+    }
+
+    reload() {
+        this.currentBulletsAmount = 0;
+        this.intervalCounter = 0;
     }
 }
 
@@ -429,7 +454,7 @@ const playerConfig = [80, 400, 2, 3, {
     die: ['./img/hero_die/hero_die_1.png', './img/hero_die/hero_die_2.png', './img/hero_die/hero_die_3.png', './img/hero_die/hero_die_4.png', './img/hero_die/hero_die_5.png', './img/hero_die/hero_die_6.png', './img/hero_die/hero_die_7.png', './img/hero_die/hero_die_8.png']
 }, 'stand', {
     run: 10,
-    shoot: [2, 3],
+    shoot: [2, 3, 4],
     die: 10
 }];
 const enemyConfig = [1, {
@@ -443,13 +468,12 @@ const enemyConfig = [1, {
 }];
 const enemyGeneratorConfig = [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["a" /* Enemy */], enemyConfig, 150];
 const bulletConfigs = [[20, './img/bullet/bullet_yellow.png', 1], [15, './img/bullet/bullet_green.png', 2], [10, './img/bullet/bullet_blue.png', 3]];
-const gunConfigs = [[__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfigs[0], 20], [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfigs[1], 25], [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfigs[2], 30]];
+const gunConfigs = [[__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfigs[0], 20, 30, 150], [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfigs[1], 25, 30, 150], [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfigs[2], 30, 30, 150]];
 const creatureManager = new __WEBPACK_IMPORTED_MODULE_1__objectManager_js__["a" /* CreatureManager */]();
 const bulletManger = new __WEBPACK_IMPORTED_MODULE_1__objectManager_js__["b" /* BulletManager */]();
 const weaponManager = new __WEBPACK_IMPORTED_MODULE_1__objectManager_js__["c" /* ObjectManager */]();
-const gun = new __WEBPACK_IMPORTED_MODULE_2__objectGenerator_js__["a" /* Gun */](bulletManger, ...gunConfigs[0]);
 const player = new __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["c" /* Player */](...playerConfig, weaponManager);
-const enemyGenerator = new __WEBPACK_IMPORTED_MODULE_2__objectGenerator_js__["b" /* EnemyGenerator */](creatureManager, ...enemyGeneratorConfig);
+const enemyGenerator = new __WEBPACK_IMPORTED_MODULE_2__objectGenerator_js__["a" /* EnemyGenerator */](creatureManager, ...enemyGeneratorConfig);
 let isStoped = false;
 let score = 0;
 
@@ -536,12 +560,27 @@ const checkPlayerCollisions = function () {
     }
 };
 
+const drawWeaponIndicator = function () {
+    ctx.beginPath();
+    ctx.moveTo(player.x + 35, player.y + 10);
+    if (player.currentGun.currentBulletsAmount !== 0) {
+        ctx.strokeStyle = '#fff200';
+        ctx.lineTo(player.x + 35 + 53 * (player.currentGun.currentBulletsAmount / player.currentGun.bulletCapacity), player.y + 10);
+    } else {
+        ctx.strokeStyle = '#8b0000';
+        ctx.lineTo(player.x + 35 + 53 * (player.currentGun.intervalCounter / player.currentGun.reloadingInterval), player.y + 10);
+    }
+    ctx.closePath();
+    ctx.stroke();
+};
+
 const redraw = function () {
     ctx.drawImage(background, 0, 0);
     drawInterface(ctx);
 
     checkPlayerCollisions();
     creatureManager.run(ctx);
+    drawWeaponIndicator();
     bulletManger.run(ctx);
     weaponManager.run();
     enemyGenerator.run();
@@ -559,13 +598,14 @@ const redraw = function () {
 (function () {
     ctx.font = '48px Agency FB';
     ctx.fillStyle = '#ffffff';
+    ctx.lineWidth = 5;
     background.src = './img/background.png';
     healthImage.src = './img/interface/health.png';
 
     creatureManager.push(player);
-    weaponManager.push(gun);
-    weaponManager.push(new __WEBPACK_IMPORTED_MODULE_2__objectGenerator_js__["a" /* Gun */](bulletManger, ...gunConfigs[1]));
-    weaponManager.push(new __WEBPACK_IMPORTED_MODULE_2__objectGenerator_js__["a" /* Gun */](bulletManger, ...gunConfigs[2]));
+    weaponManager.push(new __WEBPACK_IMPORTED_MODULE_2__objectGenerator_js__["b" /* Gun */](player, bulletManger, ...gunConfigs[0]));
+    weaponManager.push(new __WEBPACK_IMPORTED_MODULE_2__objectGenerator_js__["b" /* Gun */](player, bulletManger, ...gunConfigs[1]));
+    weaponManager.push(new __WEBPACK_IMPORTED_MODULE_2__objectGenerator_js__["b" /* Gun */](player, bulletManger, ...gunConfigs[2]));
     player.currentGun = player.guns[0];
 
     requestAnimationFrame(redraw);
