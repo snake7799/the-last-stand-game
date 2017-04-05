@@ -46,6 +46,7 @@ class Gun extends ObjectGenerator {
     handle() {
         if (this.readyToShoot) return;
         if (this.currentBulletsAmount === 0 && this.weaponHandler.currentGun !== this) {
+            this.intervalCounter = 0;
             return;
         }
 
