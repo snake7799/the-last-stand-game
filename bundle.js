@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 3);
+/******/ 	return __webpack_require__(__webpack_require__.s = 4);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -299,6 +299,76 @@ class Enemy extends Creature {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return drawStartScreen; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return drawInterface; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return increaseScore; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return drawWeaponIndicator; });
+const healthImage = new Image();
+healthImage.src = './img/interface/health.png';
+let score = 0;
+
+const drawStartScreen = function (context) {
+	const logo = new Image();
+	logo.src = './img/interface/planet.png';
+
+	context.fillStyle = 'rgba(0, 0, 0, .8)';
+	context.fillRect(0, 0, 1481, 700);
+
+	context.drawImage(logo, 80, 70);
+
+	context.font = '108px Agency FB';
+	context.fillStyle = '#ffffff';
+	context.fillText('Space Shooter', 920, 250);
+
+	context.font = '48px Agency FB';
+	context.fillText('Click to PLAY', 1060, 380);
+	context.save();
+
+	context.font = '36px Agency FB';
+	context.fillText('Use arrow keys to move', 1020, 470);
+	context.fillText('Use the Space key to shoot', 1005, 520);
+	context.fillText('Use the R key to force reload', 992, 570);
+
+	context.font = '26px Agency FB';
+	context.fillText('JSkills Game Team © 2017', 680, 680);
+	context.restore();
+};
+
+const drawInterface = function (context, object) {
+	let healthImagePos = 1415;
+	for (let i = 0; i < object.health; i++) {
+		context.drawImage(healthImage, healthImagePos, 30);
+		healthImagePos -= 50;
+	}
+
+	context.fillText(score, 735, 67);
+};
+
+const increaseScore = function () {
+	score += 10;
+};
+
+const drawWeaponIndicator = function (context, object) {
+	context.beginPath();
+	context.moveTo(object.x + 35, object.y + 10);
+	if (object.currentGun.currentBulletsAmount !== 0) {
+		context.strokeStyle = '#fff200';
+		context.lineTo(object.x + 35 + 53 * (object.currentGun.currentBulletsAmount / object.currentGun.bulletCapacity), object.y + 10);
+	} else {
+		context.strokeStyle = '#8b0000';
+		context.lineTo(object.x + 35 + 53 * (object.currentGun.intervalCounter / object.currentGun.reloadingInterval), object.y + 10);
+	}
+	context.closePath();
+	context.stroke();
+};
+
+
+
+/***/ }),
+/* 2 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return EnemyGenerator; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return Gun; });
 class ObjectGenerator {
@@ -373,7 +443,7 @@ class Gun extends ObjectGenerator {
 
 
 /***/ }),
-/* 2 */
+/* 3 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -426,14 +496,16 @@ class CreatureManager extends ObjectManager {
 
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__movingObject_js__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__objectManager_js__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__objectGenerator_js__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__interface_js__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__objectManager_js__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__objectGenerator_js__ = __webpack_require__(2);
+
 
 
 
@@ -445,7 +517,6 @@ window.requestAnimationFrame = reqAnimFrame;
 
 const ctx = document.getElementById('gameArea').getContext('2d');
 const background = new Image();
-const healthImage = new Image();
 const playerConfig = [80, 400, 2, 3, {
     stand: ['./img/hero_fire/hero_fire_1.png'],
     run: ['./img/hero_run/hero_run_1.png', './img/hero_run/hero_run_2.png', './img/hero_run/hero_run_3.png', './img/hero_run/hero_run_4.png', './img/hero_run/hero_run_5.png', './img/hero_run/hero_run_6.png'],
@@ -468,23 +539,13 @@ const enemyConfig = [1, {
 const enemyGeneratorConfig = [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["a" /* Enemy */], enemyConfig, 150];
 const bulletConfigs = [[20, './img/bullet/bullet_yellow.png', 1], [15, './img/bullet/bullet_green.png', 2], [10, './img/bullet/bullet_blue.png', 3]];
 const gunConfigs = [[__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfigs[0], 20, 20, 150], [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfigs[1], 25, 20, 150], [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfigs[2], 30, 20, 150]];
-const creatureManager = new __WEBPACK_IMPORTED_MODULE_1__objectManager_js__["a" /* CreatureManager */]();
-const bulletManger = new __WEBPACK_IMPORTED_MODULE_1__objectManager_js__["b" /* BulletManager */]();
-const weaponManager = new __WEBPACK_IMPORTED_MODULE_1__objectManager_js__["c" /* ObjectManager */]();
+const creatureManager = new __WEBPACK_IMPORTED_MODULE_2__objectManager_js__["a" /* CreatureManager */]();
+const bulletManger = new __WEBPACK_IMPORTED_MODULE_2__objectManager_js__["b" /* BulletManager */]();
+const weaponManager = new __WEBPACK_IMPORTED_MODULE_2__objectManager_js__["c" /* ObjectManager */]();
 const player = new __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["c" /* Player */](...playerConfig, weaponManager);
-const enemyGenerator = new __WEBPACK_IMPORTED_MODULE_2__objectGenerator_js__["a" /* EnemyGenerator */](creatureManager, ...enemyGeneratorConfig);
+const enemyGenerator = new __WEBPACK_IMPORTED_MODULE_3__objectGenerator_js__["a" /* EnemyGenerator */](creatureManager, ...enemyGeneratorConfig);
+let isGameStarted = false;
 let isStoped = false;
-let score = 0;
-
-const drawInterface = function (context) {
-    let healthImagePos = 1415;
-    for (let i = 0; i < player.health; i++) {
-        context.drawImage(healthImage, healthImagePos, 30);
-        healthImagePos -= 50;
-    }
-
-    ctx.fillText(score, 735, 67);
-};
 
 document.addEventListener('keydown', function (e) {
     if (e.keyCode == 27 && isStoped == false) {
@@ -519,7 +580,7 @@ const checkBulletsCollisions = function () {
         }
         if (creatureManager[j].isCompletelyDead == true) {
             creatureManager.splice(j, 1);
-            score += 10;
+            __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["a" /* increaseScore */])();
         }
     }
 };
@@ -559,30 +620,31 @@ const checkPlayerCollisions = function () {
     }
 };
 
-const drawWeaponIndicator = function () {
-    ctx.beginPath();
-    ctx.moveTo(player.x + 35, player.y + 10);
-    if (player.currentGun.currentBulletsAmount !== 0) {
-        ctx.strokeStyle = '#fff200';
-        ctx.lineTo(player.x + 35 + 53 * (player.currentGun.currentBulletsAmount / player.currentGun.bulletCapacity), player.y + 10);
-    } else {
-        ctx.strokeStyle = '#8b0000';
-        ctx.lineTo(player.x + 35 + 53 * (player.currentGun.intervalCounter / player.currentGun.reloadingInterval), player.y + 10);
-    }
-    ctx.closePath();
-    ctx.stroke();
+document.addEventListener('click', gameStart, false);
+
+function gameStart() {
+    isGameStarted = true;
+    document.removeEventListener('click', gameStart, false);
 };
 
 const redraw = function () {
     ctx.drawImage(background, 0, 0);
-    drawInterface(ctx);
+
+    if (!isGameStarted) {
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["b" /* drawStartScreen */])(ctx);
+        requestAnimationFrame(redraw);
+        return;
+    }
+
+    __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["c" /* drawInterface */])(ctx, player);
+    __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["d" /* drawWeaponIndicator */])(ctx, player);
 
     checkPlayerCollisions();
     creatureManager.run(ctx);
-    drawWeaponIndicator();
     bulletManger.run(ctx);
     weaponManager.run();
     enemyGenerator.run();
+
     if (player.health < 1) {
         player.isDead = true;
     }
@@ -590,21 +652,20 @@ const redraw = function () {
         ctx.fillText('PAUSE', 740, 320);
         return;
     }
+
     checkBulletsCollisions();
     requestAnimationFrame(redraw);
 };
 
 (function () {
     ctx.font = '48px Agency FB';
-    ctx.fillStyle = '#ffffff';
     ctx.lineWidth = 5;
     background.src = './img/background.png';
-    healthImage.src = './img/interface/health.png';
 
     creatureManager.push(player);
-    weaponManager.push(new __WEBPACK_IMPORTED_MODULE_2__objectGenerator_js__["b" /* Gun */](player, bulletManger, ...gunConfigs[0]));
-    weaponManager.push(new __WEBPACK_IMPORTED_MODULE_2__objectGenerator_js__["b" /* Gun */](player, bulletManger, ...gunConfigs[1]));
-    weaponManager.push(new __WEBPACK_IMPORTED_MODULE_2__objectGenerator_js__["b" /* Gun */](player, bulletManger, ...gunConfigs[2]));
+    weaponManager.push(new __WEBPACK_IMPORTED_MODULE_3__objectGenerator_js__["b" /* Gun */](player, bulletManger, ...gunConfigs[0]));
+    weaponManager.push(new __WEBPACK_IMPORTED_MODULE_3__objectGenerator_js__["b" /* Gun */](player, bulletManger, ...gunConfigs[1]));
+    weaponManager.push(new __WEBPACK_IMPORTED_MODULE_3__objectGenerator_js__["b" /* Gun */](player, bulletManger, ...gunConfigs[2]));
     player.currentGun = player.guns[0];
 
     requestAnimationFrame(redraw);

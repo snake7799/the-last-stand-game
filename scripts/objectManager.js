@@ -1,4 +1,4 @@
-import { Player } from './movingObject.js';
+import {Player} from './movingObject.js';
 
 class ObjectManager extends Array {
     run() {

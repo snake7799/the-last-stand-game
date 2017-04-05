@@ -67,7 +67,4 @@ class Gun extends ObjectGenerator {
     }
 }
 
-export {
-    EnemyGenerator,
-    Gun
-};
+export {EnemyGenerator, Gun};
