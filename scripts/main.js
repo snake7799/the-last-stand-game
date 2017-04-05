@@ -1,4 +1,5 @@
 import {keyState, Ammo, Player, Enemy} from './movingObject.js';
+import {drawStartScreen, drawInterface, increaseScore, drawWeaponIndicator} from './interface.js';
 import {ObjectManager, BulletManager, CreatureManager} from './objectManager.js';
 import {EnemyGenerator, Gun} from './objectGenerator.js';
 
@@ -14,7 +15,6 @@ window.requestAnimationFrame = reqAnimFrame;
 
 const ctx = document.getElementById('gameArea').getContext('2d');
 const background = new Image();
-const healthImage = new Image();
 const playerConfig = [80,
     400,
     2,
@@ -89,18 +89,8 @@ const bulletManger = new BulletManager();
 const weaponManager = new ObjectManager();
 const player = new Player(...playerConfig, weaponManager);
 const enemyGenerator = new EnemyGenerator(creatureManager, ...enemyGeneratorConfig);
+let isGameStarted = false;
 let isStoped = false;
-let score = 0;
-
-const drawInterface = function(context) {
-    let healthImagePos = 1415;
-    for (let i = 0; i < player.health; i++) {
-        context.drawImage(healthImage, healthImagePos, 30);
-        healthImagePos -= 50;
-    }
-	
-	ctx.fillText(score, 735, 67);
-};
 
 document.addEventListener('keydown', function(e) {
     if (e.keyCode == 27 && isStoped == false) {
@@ -138,7 +128,7 @@ const checkBulletsCollisions = function() {
         }
         if(creatureManager[j].isCompletelyDead == true){
             creatureManager.splice(j, 1);
-			score += 10;
+			increaseScore();
         }
     }
 };
@@ -189,52 +179,52 @@ const checkPlayerCollisions = function() {
         }
         if (creatureManager[i].isAttackComplete) {
             creatureManager[i].isAttackComplete = false;
-            if(player.canMoveForeword == false) player.health -= 1;
+            if (player.canMoveForeword == false) player.health -= 1;
         }
     }
 };
 
-const drawWeaponIndicator = function () {
-        ctx.beginPath();
-        ctx.moveTo(player.x + 35, player.y + 10);
-        if (player.currentGun.currentBulletsAmount !== 0) {
-            ctx.strokeStyle = '#fff200';
-            ctx.lineTo(player.x + 35 + 53 * (player.currentGun.currentBulletsAmount / player.currentGun.bulletCapacity), player.y + 10);
-        } else {
-            ctx.strokeStyle = '#8b0000';
-            ctx.lineTo(player.x + 35 + 53 * (player.currentGun.intervalCounter / player.currentGun.reloadingInterval), player.y + 10);
-        }
-        ctx.closePath();
-        ctx.stroke();
-}
+document.addEventListener('click', gameStart, false);
+
+function gameStart() {
+	isGameStarted = true;
+	document.removeEventListener('click', gameStart, false);
+};
 
 const redraw = function() {
     ctx.drawImage(background, 0, 0);
-    drawInterface(ctx);
+    
+	if (!isGameStarted) {
+		drawStartScreen(ctx);
+		requestAnimationFrame(redraw);
+		return;
+	}
+
+	drawInterface(ctx, player);
+	drawWeaponIndicator(ctx, player);
 	
     checkPlayerCollisions();
     creatureManager.run(ctx);
-    drawWeaponIndicator();
     bulletManger.run(ctx);
     weaponManager.run();
     enemyGenerator.run();
-    if(player.health < 1) {
+	
+    if (player.health < 1) {
         player.isDead = true;
     }
     if (isStoped) {
         ctx.fillText('PAUSE', 740, 320);
         return;
     }
+	
     checkBulletsCollisions();
     requestAnimationFrame(redraw);
 };
 
 (function() {
 	ctx.font = '48px Agency FB';
-	ctx.fillStyle = '#ffffff';
     ctx.lineWidth = 5;
     background.src = './img/background.png';
-    healthImage.src = './img/interface/health.png';
 
     creatureManager.push(player);
     weaponManager.push(new Gun(player, bulletManger, ...gunConfigs[0]));
