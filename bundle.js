@@ -334,11 +334,20 @@ const drawStartScreen = function (context) {
 	context.restore();
 };
 
-const drawInterface = function (context, object) {
+const drawInterface = function (context, object, ammoImages) {
 	let healthImagePos = 1415;
 	for (let i = 0; i < object.health; i++) {
 		context.drawImage(healthImage, healthImagePos, 30);
 		healthImagePos -= 50;
+	}
+
+	let weaponImagePos = 60;
+	for (let i = 1; i < ammoImages.length; i++) {
+		context.drawImage(ammoImages[i], weaponImagePos, 30);
+		if (i == object.guns.indexOf(object.currentGun) + 1) {
+			context.drawImage(ammoImages[0], weaponImagePos - 3, 27);
+		}
+		weaponImagePos += 75;
 	}
 
 	context.fillText(score, 735, 67);
@@ -542,6 +551,7 @@ const gunConfigs = [[__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo 
 const creatureManager = new __WEBPACK_IMPORTED_MODULE_2__objectManager_js__["a" /* CreatureManager */]();
 const bulletManger = new __WEBPACK_IMPORTED_MODULE_2__objectManager_js__["b" /* BulletManager */]();
 const weaponManager = new __WEBPACK_IMPORTED_MODULE_2__objectManager_js__["c" /* ObjectManager */]();
+const weaponImages = [];
 const player = new __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["c" /* Player */](...playerConfig, weaponManager);
 const enemyGenerator = new __WEBPACK_IMPORTED_MODULE_3__objectGenerator_js__["a" /* EnemyGenerator */](creatureManager, ...enemyGeneratorConfig);
 let isGameStarted = false;
@@ -636,7 +646,7 @@ const redraw = function () {
         return;
     }
 
-    __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["c" /* drawInterface */])(ctx, player);
+    __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["c" /* drawInterface */])(ctx, player, weaponImages);
     __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["d" /* drawWeaponIndicator */])(ctx, player);
 
     checkPlayerCollisions();
@@ -661,6 +671,15 @@ const redraw = function () {
     ctx.font = '48px Agency FB';
     ctx.lineWidth = 5;
     background.src = './img/background.png';
+
+    weaponImages.push(new Image());
+    weaponImages.push(new Image());
+    weaponImages.push(new Image());
+    weaponImages.push(new Image());
+    weaponImages[0].src = './img/interface/default.png';
+    weaponImages[1].src = './img/interface/basic.jpg';
+    weaponImages[2].src = './img/interface/poison.jpg';
+    weaponImages[3].src = './img/interface/frost.jpg';
 
     creatureManager.push(player);
     weaponManager.push(new __WEBPACK_IMPORTED_MODULE_3__objectGenerator_js__["b" /* Gun */](player, bulletManger, ...gunConfigs[0]));

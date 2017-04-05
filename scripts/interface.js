@@ -29,12 +29,21 @@ const drawStartScreen = function(context) {
 	context.restore();
 };
 
-const drawInterface = function(context, object) {
+const drawInterface = function(context, object, ammoImages) {
 	let healthImagePos = 1415;
 	for (let i = 0; i < object.health; i++) {
 		context.drawImage(healthImage, healthImagePos, 30);
 		healthImagePos -= 50;
 	}
+
+    let weaponImagePos = 60;
+   	for (let i = 1; i < ammoImages.length; i++) {
+       context.drawImage(ammoImages[i], weaponImagePos, 30);
+       if (i == object.guns.indexOf(object.currentGun) + 1) {
+		   context.drawImage(ammoImages[0], weaponImagePos - 3, 27);
+       }
+       weaponImagePos += 75;
+    }
 
 	context.fillText(score, 735, 67);
 };

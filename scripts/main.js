@@ -87,6 +87,7 @@ const gunConfigs = [[Ammo, bulletConfigs[0], 20, 20, 150],
 const creatureManager = new CreatureManager();
 const bulletManger = new BulletManager();
 const weaponManager = new ObjectManager();
+const weaponImages = [];
 const player = new Player(...playerConfig, weaponManager);
 const enemyGenerator = new EnemyGenerator(creatureManager, ...enemyGeneratorConfig);
 let isGameStarted = false;
@@ -193,22 +194,22 @@ function gameStart() {
 
 const redraw = function() {
     ctx.drawImage(background, 0, 0);
-    
+
 	if (!isGameStarted) {
 		drawStartScreen(ctx);
 		requestAnimationFrame(redraw);
 		return;
 	}
 
-	drawInterface(ctx, player);
+	drawInterface(ctx, player, weaponImages);
 	drawWeaponIndicator(ctx, player);
-	
+
     checkPlayerCollisions();
     creatureManager.run(ctx);
     bulletManger.run(ctx);
     weaponManager.run();
     enemyGenerator.run();
-	
+
     if (player.health < 1) {
         player.isDead = true;
     }
@@ -216,7 +217,7 @@ const redraw = function() {
         ctx.fillText('PAUSE', 740, 320);
         return;
     }
-	
+
     checkBulletsCollisions();
     requestAnimationFrame(redraw);
 };
@@ -225,6 +226,15 @@ const redraw = function() {
 	ctx.font = '48px Agency FB';
     ctx.lineWidth = 5;
     background.src = './img/background.png';
+
+    weaponImages.push(new Image());
+    weaponImages.push(new Image());
+    weaponImages.push(new Image());
+    weaponImages.push(new Image());
+    weaponImages[0].src = './img/interface/default.png';
+    weaponImages[1].src = './img/interface/basic.jpg';
+    weaponImages[2].src = './img/interface/poison.jpg';
+    weaponImages[3].src = './img/interface/frost.jpg';
 
     creatureManager.push(player);
     weaponManager.push(new Gun(player, bulletManger, ...gunConfigs[0]));
