@@ -44,7 +44,7 @@ const playerConfig = [80,
     'stand',
     {
         run: 10,
-        shoot: [2, 3],
+        shoot: [2, 3, 4],
         die: 10
     }];
 const enemyConfig = [
@@ -81,11 +81,12 @@ const enemyGeneratorConfig = [Enemy, enemyConfig, 150];
 const bulletConfigs = [[20, './img/bullet/bullet_yellow.png', 1],
                        [15, './img/bullet/bullet_green.png', 2],
                        [10, './img/bullet/bullet_blue.png', 3]];
-const gunConfigs = [[Ammo, bulletConfigs[0], 20], [Ammo, bulletConfigs[1], 25], [Ammo, bulletConfigs[2], 30]];
+const gunConfigs = [[Ammo, bulletConfigs[0], 20, 20, 150],
+                    [Ammo, bulletConfigs[1], 25, 20, 150],
+                    [Ammo, bulletConfigs[2], 30, 20, 150]];
 const creatureManager = new CreatureManager();
 const bulletManger = new BulletManager();
 const weaponManager = new ObjectManager();
-const gun = new Gun(bulletManger, ...gunConfigs[0]);
 const player = new Player(...playerConfig, weaponManager);
 const enemyGenerator = new EnemyGenerator(creatureManager, ...enemyGeneratorConfig);
 let isStoped = false;
@@ -193,12 +194,27 @@ const checkPlayerCollisions = function() {
     }
 };
 
+const drawWeaponIndicator = function () {
+        ctx.beginPath();
+        ctx.moveTo(player.x + 35, player.y + 10);
+        if (player.currentGun.currentBulletsAmount !== 0) {
+            ctx.strokeStyle = '#fff200';
+            ctx.lineTo(player.x + 35 + 53 * (player.currentGun.currentBulletsAmount / player.currentGun.bulletCapacity), player.y + 10);
+        } else {
+            ctx.strokeStyle = '#8b0000';
+            ctx.lineTo(player.x + 35 + 53 * (player.currentGun.intervalCounter / player.currentGun.reloadingInterval), player.y + 10);
+        }
+        ctx.closePath();
+        ctx.stroke();
+}
+
 const redraw = function() {
     ctx.drawImage(background, 0, 0);
     drawInterface(ctx);
 	
     checkPlayerCollisions();
     creatureManager.run(ctx);
+    drawWeaponIndicator();
     bulletManger.run(ctx);
     weaponManager.run();
     enemyGenerator.run();
@@ -216,13 +232,14 @@ const redraw = function() {
 (function() {
 	ctx.font = '48px Agency FB';
 	ctx.fillStyle = '#ffffff';
+    ctx.lineWidth = 5;
     background.src = './img/background.png';
     healthImage.src = './img/interface/health.png';
 
     creatureManager.push(player);
-    weaponManager.push(gun);
-    weaponManager.push(new Gun(bulletManger, ...gunConfigs[1]));
-    weaponManager.push(new Gun(bulletManger, ...gunConfigs[2]));
+    weaponManager.push(new Gun(player, bulletManger, ...gunConfigs[0]));
+    weaponManager.push(new Gun(player, bulletManger, ...gunConfigs[1]));
+    weaponManager.push(new Gun(player, bulletManger, ...gunConfigs[2]));
     player.currentGun = player.guns[0];
 
     requestAnimationFrame(redraw);

@@ -1,14 +1,18 @@
 class ObjectGenerator {
-    constructor(objects, objectConstructor, objectConfig, interval) {
+    constructor(objects, objectConstructor, objectConfig) {
         this.objects = objects;
         this.objectConstructor = objectConstructor;
-        this.objectConfig = objectConfig
-        this.interval = interval;
+        this.objectConfig = objectConfig;
         this.intervalCounter = 0;
     }
 }
 
 class EnemyGenerator extends ObjectGenerator {
+    constructor(objects, objectConstructor, objectConfig, interval) {
+        super(objects, objectConstructor, objectConfig);
+        this.interval = interval;
+    }
+    
     run() {
         if (this.intervalCounter === this.interval) {
             this.intervalCounter = 0;
@@ -22,23 +26,44 @@ class EnemyGenerator extends ObjectGenerator {
 }
 
 class Gun extends ObjectGenerator {
-    constructor(objects, objectConstructor, objectConfig, interval) {
-        super(objects, objectConstructor, objectConfig, interval);
+    constructor(weaponHandler, objects, objectConstructor, objectConfig, shootingInterval, bulletCapacity, reloadingInterval) {
+        super(objects, objectConstructor, objectConfig);
+        this.weaponHandler = weaponHandler;
+        this.shootingInterval = shootingInterval;
+        this.bulletCapacity = bulletCapacity;
+        this.currentBulletsAmount = bulletCapacity;
+        this.reloadingInterval = reloadingInterval;
         this.readyToShoot = true;
     }
 
     shoot(x, y) {
         this.objects.push(new this.objectConstructor(x, y, ...this.objectConfig));
+        this.currentBulletsAmount -= 1;
+        this.intervalCounter = 0;
         this.readyToShoot = false;
     }
 
     handle() {
         if (this.readyToShoot) return;
-
-        if (this.intervalCounter === this.interval) {
+        if (this.currentBulletsAmount === 0 && this.weaponHandler.currentGun !== this) {
             this.intervalCounter = 0;
+            return;
+        }
+
+        if (this.currentBulletsAmount === 0) {
+            if (this.intervalCounter === this.reloadingInterval) {
+                this.currentBulletsAmount = this.bulletCapacity;
+                this.readyToShoot = true;
+            } else this.intervalCounter += 1;
+        } else if (this.intervalCounter === this.shootingInterval) {
             this.readyToShoot = true;
         } else this.intervalCounter += 1;
+    }
+
+    reload() {
+        this.currentBulletsAmount = 0;
+        this.intervalCounter = 0;
+        this.readyToShoot = false;
     }
 }
 
