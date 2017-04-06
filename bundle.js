@@ -303,6 +303,7 @@ class Enemy extends Creature {
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return drawInterface; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return increaseScore; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return drawWeaponIndicator; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return drawPause; });
 const healthImage = new Image();
 healthImage.src = './img/interface/health.png';
 let score = 0;
@@ -330,7 +331,7 @@ const drawStartScreen = function (context) {
 	context.fillText('Use the R key to force reload', 992, 570);
 
 	context.font = '26px Agency FB';
-	context.fillText('JSkills Game Team © 2017', 680, 680);
+	context.fillText('JSkills Game Team © 2017', 645, 680);
 	context.restore();
 };
 
@@ -341,13 +342,13 @@ const drawInterface = function (context, object, ammoImages) {
 		healthImagePos -= 50;
 	}
 
-	let weaponImagePos = 60;
+	let weaponImagePos = 40;
 	for (let i = 1; i < ammoImages.length; i++) {
 		context.drawImage(ammoImages[i], weaponImagePos, 30);
 		if (i == object.guns.indexOf(object.currentGun) + 1) {
 			context.drawImage(ammoImages[0], weaponImagePos - 3, 27);
 		}
-		weaponImagePos += 75;
+		weaponImagePos += 90;
 	}
 
 	context.fillText(score, 735, 67);
@@ -369,6 +370,20 @@ const drawWeaponIndicator = function (context, object) {
 	}
 	context.closePath();
 	context.stroke();
+};
+
+const drawPause = function (context) {
+	context.fillStyle = 'rgba(127, 62, 162, 0.5)';
+	context.fillRect(0, 0, 1481, 700);
+
+	context.font = '92px Agency FB';
+	context.fillStyle = '#ffffff';
+	context.fillText('PAUSE', 655, 370);
+
+	context.font = '26px Agency FB';
+	context.fillText('JSkills Game Team © 2017', 645, 680);
+
+	context.font = '48px Agency FB';
 };
 
 
@@ -655,11 +670,9 @@ const redraw = function () {
     weaponManager.run();
     enemyGenerator.run();
 
-    if (player.health < 1) {
-        player.isDead = true;
-    }
+    if (player.health < 1) player.isDead = true;
     if (isStoped) {
-        ctx.fillText('PAUSE', 740, 320);
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["e" /* drawPause */])(ctx);
         return;
     }
 
@@ -668,9 +681,8 @@ const redraw = function () {
 };
 
 (function () {
-    ctx.font = '48px Agency FB';
-    ctx.lineWidth = 5;
     background.src = './img/background.png';
+    ctx.lineWidth = 5;
 
     weaponImages.push(new Image());
     weaponImages.push(new Image());
