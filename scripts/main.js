@@ -1,5 +1,5 @@
 import {keyState, Ammo, Player, Enemy} from './movingObject.js';
-import {drawStartScreen, drawInterface, increaseScore, drawWeaponIndicator} from './interface.js';
+import {drawStartScreen, drawInterface, increaseScore, drawWeaponIndicator, drawPause} from './interface.js';
 import {ObjectManager, BulletManager, CreatureManager} from './objectManager.js';
 import {EnemyGenerator, Gun} from './objectGenerator.js';
 
@@ -210,22 +210,19 @@ const redraw = function() {
     weaponManager.run();
     enemyGenerator.run();
 
-    if (player.health < 1) {
-        player.isDead = true;
-    }
+    if (player.health < 1) player.isDead = true;
     if (isStoped) {
-        ctx.fillText('PAUSE', 740, 320);
-        return;
-    }
+		drawPause(ctx);
+		return;
+	}
 
     checkBulletsCollisions();
     requestAnimationFrame(redraw);
 };
 
 (function() {
-	ctx.font = '48px Agency FB';
+	background.src = './img/background.png';
     ctx.lineWidth = 5;
-    background.src = './img/background.png';
 
     weaponImages.push(new Image());
     weaponImages.push(new Image());

@@ -25,7 +25,7 @@ const drawStartScreen = function(context) {
 	context.fillText('Use the R key to force reload', 992, 570);
 
 	context.font = '26px Agency FB';
-	context.fillText('JSkills Game Team © 2017', 680, 680);
+	context.fillText('JSkills Game Team © 2017', 645, 680);
 	context.restore();
 };
 
@@ -36,13 +36,13 @@ const drawInterface = function(context, object, ammoImages) {
 		healthImagePos -= 50;
 	}
 
-    let weaponImagePos = 60;
+    let weaponImagePos = 40;
    	for (let i = 1; i < ammoImages.length; i++) {
        context.drawImage(ammoImages[i], weaponImagePos, 30);
        if (i == object.guns.indexOf(object.currentGun) + 1) {
 		   context.drawImage(ammoImages[0], weaponImagePos - 3, 27);
        }
-       weaponImagePos += 75;
+       weaponImagePos += 90;
     }
 
 	context.fillText(score, 735, 67);
@@ -66,4 +66,18 @@ const drawWeaponIndicator = function(context, object) {
 	context.stroke();
 };
 
-export {drawStartScreen, drawInterface, increaseScore, drawWeaponIndicator};
+const drawPause = function(context) {
+	context.fillStyle = 'rgba(127, 62, 162, 0.5)';
+	context.fillRect(0, 0, 1481, 700);
+	
+	context.font = '92px Agency FB';
+	context.fillStyle = '#ffffff';
+	context.fillText('PAUSE', 655, 370);
+	
+	context.font = '26px Agency FB';
+	context.fillText('JSkills Game Team © 2017', 645, 680);
+	
+	context.font = '48px Agency FB';
+};
+
+export {drawStartScreen, drawInterface, increaseScore, drawWeaponIndicator, drawPause};
