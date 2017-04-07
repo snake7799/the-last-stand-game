@@ -131,7 +131,6 @@ class Creature extends MovingObject {
             }
         }
 
-        const temp = this.currentFrame;
         this.currentFrame = nextFrame;
         this.image.src = this.currentFrames[Math.floor(this.currentFrame)];
     }
