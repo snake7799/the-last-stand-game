@@ -17,7 +17,7 @@ const ctx = document.getElementById('gameArea').getContext('2d');
 const background = new Image();
 const playerConfig = [80,
     400,
-    100,
+    125,
     3,
     {
         stand: ['./img/hero_fire/hero_fire_1.png'],
@@ -43,8 +43,8 @@ const playerConfig = [80,
     },
     'stand',
     {
-        run: 3,
-        shoot: [12, 10, 7],
+        run: 6,
+        shoot: [17, 14, 12],
         die: 10
     }];
 const enemyConfig = [
@@ -74,18 +74,18 @@ const enemyConfig = [
     },
     'run',
     {
-        run: 3,
-        die: 5,
-        attack: 2
+        run: 4,
+        die: 10,
+        attack: 5
     },
-    5000];
+    3000];
 const enemyGeneratorConfig = [Enemy, enemyConfig, 750];
-const bulletConfigs = [[400, './img/bullet/bullet_yellow.png', 1],
-                       [300, './img/bullet/bullet_green.png', 2],
-                       [200, './img/bullet/bullet_blue.png', 3]];
-const gunConfigs = [[Ammo, bulletConfigs[0], 400, 20, 2000],
-                    [Ammo, bulletConfigs[1], 500, 20, 2000],
-                    [Ammo, bulletConfigs[2], 600, 20, 2000]];
+const bulletConfigs = [[1100, './img/bullet/bullet_yellow.png', 1],
+                       [1000, './img/bullet/bullet_green.png', 2],
+                       [900, './img/bullet/bullet_blue.png', 3]];
+const gunConfigs = [[Ammo, bulletConfigs[0], 350, 20, 2000],
+                    [Ammo, bulletConfigs[1], 450, 20, 2000],
+                    [Ammo, bulletConfigs[2], 550, 20, 2000]];
 const creatureManager = new CreatureManager();
 const bulletManger = new BulletManager();
 const weaponManager = new ObjectManager();
