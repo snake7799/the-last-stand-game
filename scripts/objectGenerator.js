@@ -3,66 +3,72 @@ class ObjectGenerator {
         this.objects = objects;
         this.objectConstructor = objectConstructor;
         this.objectConfig = objectConfig;
-        this.intervalCounter = 0;
+        this.lastGeneration = 0;
     }
 }
 
 class EnemyGenerator extends ObjectGenerator {
     constructor(objects, objectConstructor, objectConfig, interval) {
         super(objects, objectConstructor, objectConfig);
+        this.defaultSpeed = objectConfig[0];
+        this.defaultFrameSpeed = objectConfig[4]['run'];
         this.interval = interval;
     }
     
-    run() {
-        if (this.intervalCounter === this.interval) {
-            this.intervalCounter = 0;
+    run(deltaT) {
+        if (Date.now() - this.lastGeneration > this.interval) {
             const spawnPosY = 244 + Math.random() * 341;
-            const enemySpeed = -(Math.random() * (1.6 - 0.8) + 0.8);
-            const enemyChangeFrameInterval = (10 + enemySpeed);
-            this.objectConfig[3]['run'] = Math.floor(enemyChangeFrameInterval);
-            this.objects.push(new this.objectConstructor(1580, spawnPosY, enemySpeed, ...this.objectConfig));
-        } else this.intervalCounter += 1;
+            const speedCoefficient = 1 + 0.5 * Math.random();
+            const enemySpeed = this.defaultSpeed * speedCoefficient;
+            const enemyFrameSpeed = this.defaultFrameSpeed * speedCoefficient;
+            this.objectConfig[0] = enemySpeed;
+            this.objectConfig[4]['run'] = enemyFrameSpeed;
+            this.lastGeneration = Date.now();
+            
+            this.objects.push(new this.objectConstructor(1580, spawnPosY, ...this.objectConfig));
+        }
     }
 }
 
 class Gun extends ObjectGenerator {
-    constructor(weaponHandler, objects, objectConstructor, objectConfig, shootingInterval, bulletCapacity, reloadingInterval) {
+    constructor(weaponHandler, objects, objectConstructor, objectConfig, shootingCooldown, bulletCapacity, reloadingCooldown) {
         super(objects, objectConstructor, objectConfig);
         this.weaponHandler = weaponHandler;
-        this.shootingInterval = shootingInterval;
+        this.shootingCooldown = shootingCooldown;
         this.bulletCapacity = bulletCapacity;
         this.currentBulletsAmount = bulletCapacity;
-        this.reloadingInterval = reloadingInterval;
+        this.reloadingCooldown = reloadingCooldown;
+        this.countdownStart = 0;
         this.readyToShoot = true;
     }
 
     shoot(x, y) {
         this.objects.push(new this.objectConstructor(x, y, ...this.objectConfig));
         this.currentBulletsAmount -= 1;
-        this.intervalCounter = 0;
+        this.countdownStart = Date.now();
         this.readyToShoot = false;
     }
 
-    handle() {
+    update() {
         if (this.readyToShoot) return;
         if (this.currentBulletsAmount === 0 && this.weaponHandler.currentGun !== this) {
-            this.intervalCounter = 0;
+            this.countdownStart = Date.now();
             return;
         }
 
         if (this.currentBulletsAmount === 0) {
-            if (this.intervalCounter === this.reloadingInterval) {
+            if (Date.now() - this.countdownStart > this.reloadingCooldown) {
                 this.currentBulletsAmount = this.bulletCapacity;
                 this.readyToShoot = true;
-            } else this.intervalCounter += 1;
-        } else if (this.intervalCounter === this.shootingInterval) {
+            }
+        } else if (Date.now() - this.countdownStart > this.shootingCooldown) {
             this.readyToShoot = true;
-        } else this.intervalCounter += 1;
+        }
     }
 
     reload() {
         this.currentBulletsAmount = 0;
-        this.intervalCounter = 0;
+        this.countdownStart = Date.now();
         this.readyToShoot = false;
     }
 }
