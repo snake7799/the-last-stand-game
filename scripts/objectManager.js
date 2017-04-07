@@ -1,18 +1,18 @@
 import {Player} from './movingObject.js';
 
 class ObjectManager extends Array {
-    run() {
+    update() {
         for (let i = 0; i < this.length; i++) {
-            this[i].handle();
+            this[i].update();
         }
     }
 }
 
 class BulletManager extends ObjectManager {
-    run(context) {
+    update(deltaT, context) {
         for (let i = 0; i < this.length; i++) {
             if (this[i].x < 1480) {
-                this[i].handle(context);
+                this[i].update(deltaT, context);
             } else {
                 this.splice(i, 1);
                 i -= 1;
@@ -22,14 +22,14 @@ class BulletManager extends ObjectManager {
 }
 
 class CreatureManager extends ObjectManager {
-    run(context) {
+    update(deltaT, context) {
         this.sort((a, b) => {
             if (a.y > b.y) return 1;
             else return -1;
         });
         for (let i = 0; i < this.length; i++) {
             if (this[i].x > -100) {
-                this[i].handle(context);
+                this[i].update(deltaT, context);
             } else {
                 this.forEach((item, i, arr) => {
                     if(item instanceof Player) arr[i].health -= 1;

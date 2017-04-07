@@ -17,7 +17,7 @@ const ctx = document.getElementById('gameArea').getContext('2d');
 const background = new Image();
 const playerConfig = [80,
     400,
-    2,
+    125,
     3,
     {
         stand: ['./img/hero_fire/hero_fire_1.png'],
@@ -43,11 +43,12 @@ const playerConfig = [80,
     },
     'stand',
     {
-        run: 10,
-        shoot: [2, 3, 4],
-        die: 10
+        run: 6,
+        shoot: [17, 14, 12],
+        die: 5
     }];
 const enemyConfig = [
+    -80,
     1,
     {
         run: ['./img/enemy_run/enemy_run_1.png',
@@ -73,17 +74,18 @@ const enemyConfig = [
     },
     'run',
     {
-        run: 10,
-        die: 5,
-        attack: 2
-    }];
-const enemyGeneratorConfig = [Enemy, enemyConfig, 150];
-const bulletConfigs = [[20, './img/bullet/bullet_yellow.png', 1],
-                       [15, './img/bullet/bullet_green.png', 2],
-                       [10, './img/bullet/bullet_blue.png', 3]];
-const gunConfigs = [[Ammo, bulletConfigs[0], 20, 20, 150],
-                    [Ammo, bulletConfigs[1], 25, 20, 150],
-                    [Ammo, bulletConfigs[2], 30, 20, 150]];
+        run: 4,
+        die: 10,
+        attack: 5
+    },
+    1000];
+const enemyGeneratorConfig = [Enemy, enemyConfig, 1000];
+const bulletConfigs = [[1100, './img/bullet/bullet_yellow.png', 1],
+                       [1000, './img/bullet/bullet_green.png', 2],
+                       [900, './img/bullet/bullet_blue.png', 3]];
+const gunConfigs = [[Ammo, bulletConfigs[0], 350, 20, 2000],
+                    [Ammo, bulletConfigs[1], 450, 20, 2000],
+                    [Ammo, bulletConfigs[2], 550, 20, 2000]];
 const creatureManager = new CreatureManager();
 const bulletManger = new BulletManager();
 const weaponManager = new ObjectManager();
@@ -92,6 +94,7 @@ const player = new Player(...playerConfig, weaponManager);
 const enemyGenerator = new EnemyGenerator(creatureManager, ...enemyGeneratorConfig);
 let isGameStarted = false;
 let isStoped = false;
+let time;
 
 document.addEventListener('keydown', function(e) {
     if (e.keyCode == 27 && isStoped == false) {
@@ -100,6 +103,7 @@ document.addEventListener('keydown', function(e) {
     }
     if (e.keyCode == 27 && isStoped != false) {
         isStoped = false;
+        time = Date.now();
         requestAnimationFrame(redraw);
         return;
     }
@@ -135,8 +139,8 @@ const checkBulletsCollisions = function() {
 };
 
 const checkPlayerCollisions = function() {
-    player.canMoveForeword = true;
-    player.canMoveBackword = true;
+    player.canMoveForward = true;
+    player.canMoveBackward = true;
     player.canMoveDown = true;
     player.canMoveUp = true;
     for (let i = 0; i < creatureManager.length; i++) {
@@ -147,8 +151,8 @@ const checkPlayerCollisions = function() {
                 creatureManager[i].y - player.y > -30) &&
             (player.isDead == false)) {
             if (creatureManager[i] instanceof Enemy) {
-                creatureManager[i].isAttack = true;
-                player.canMoveForeword = false;
+                creatureManager[i].isCollided = true;
+                player.canMoveForward = false;
             }
         }
         if ((creatureManager[i].x - player.x >= -70 &&
@@ -157,7 +161,7 @@ const checkPlayerCollisions = function() {
                 creatureManager[i].y - player.y > -30) &&
             (player.isDead == false)) {
             if (creatureManager[i] instanceof Enemy) {
-                player.canMoveBackword = false;
+                player.canMoveBackward = false;
             }
         }
         if ((creatureManager[i].y - player.y <= 20 &&
@@ -180,7 +184,7 @@ const checkPlayerCollisions = function() {
         }
         if (creatureManager[i].isAttackComplete) {
             creatureManager[i].isAttackComplete = false;
-            if (player.canMoveForeword == false) player.health -= 1;
+            if (player.canMoveForward == false) player.health -= 1;
         }
     }
 };
@@ -190,6 +194,7 @@ document.addEventListener('click', gameStart, false);
 function gameStart() {
 	if (!isGameStarted) {
 		isGameStarted = true;
+        time = Date.now();
 		document.removeEventListener('click', gameStart, false);
 	} else document.location.reload();
 };
@@ -206,10 +211,13 @@ const redraw = function() {
 	drawInterface(ctx, player, weaponImages);
 	drawWeaponIndicator(ctx, player);
 
+    const deltaT = (Date.now() - time) / 1000;
+    time = Date.now();
+
     checkPlayerCollisions();
-    creatureManager.run(ctx);
-    bulletManger.run(ctx);
-    weaponManager.run();
+    creatureManager.update(deltaT, ctx);
+    bulletManger.update(deltaT, ctx);
+    weaponManager.update(deltaT);
     enemyGenerator.run();
 
 	if (player.health < 1) {

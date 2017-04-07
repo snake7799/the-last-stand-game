@@ -60,7 +60,7 @@ const drawWeaponIndicator = function(context, object) {
 		context.lineTo(object.x + 35 + 53 * (object.currentGun.currentBulletsAmount / object.currentGun.bulletCapacity), object.y + 10);
 	} else {
 		context.strokeStyle = '#8b0000';
-		context.lineTo(object.x + 35 + 53 * (object.currentGun.intervalCounter / object.currentGun.reloadingInterval), object.y + 10);
+		context.lineTo(object.x + 35 + 53 * ((Date.now() - object.currentGun.countdownStart) / object.currentGun.reloadingCooldown), object.y + 10);
 	}
 	context.closePath();
 	context.stroke();
