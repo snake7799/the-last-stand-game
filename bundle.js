@@ -574,19 +574,19 @@ window.requestAnimationFrame = reqAnimFrame;
 const ctx = document.getElementById('gameArea').getContext('2d');
 const background = new Image();
 const playerConfig = [80, 400, 125, 3, {
-    stand: ['./img/hero_fire/hero_fire_1.png'],
-    run: ['./img/hero_run/hero_run_1.png', './img/hero_run/hero_run_2.png', './img/hero_run/hero_run_3.png', './img/hero_run/hero_run_4.png', './img/hero_run/hero_run_5.png', './img/hero_run/hero_run_6.png'],
-    shoot: ['./img/hero_fire/hero_fire_1.png', './img/hero_fire/hero_fire_2.png', './img/hero_fire/hero_fire_3.png', './img/hero_fire/hero_fire_2.png', './img/hero_fire/hero_fire_1.png'],
-    die: ['./img/hero_die/hero_die_1.png', './img/hero_die/hero_die_2.png', './img/hero_die/hero_die_3.png', './img/hero_die/hero_die_4.png', './img/hero_die/hero_die_5.png', './img/hero_die/hero_die_6.png', './img/hero_die/hero_die_7.png', './img/hero_die/hero_die_8.png']
+    stand: ['./img/hero/fire/hero_fire_1.png'],
+    run: ['./img/hero/run/hero_run_1.png', './img/hero/run/hero_run_2.png', './img/hero/run/hero_run_3.png', './img/hero/run/hero_run_4.png', './img/hero/run/hero_run_5.png', './img/hero/run/hero_run_6.png'],
+    shoot: ['./img/hero/fire/hero_fire_1.png', './img/hero/fire/hero_fire_2.png', './img/hero/fire/hero_fire_3.png', './img/hero/fire/hero_fire_2.png', './img/hero/fire/hero_fire_1.png'],
+    die: ['./img/hero/die/hero_die_1.png', './img/hero/die/hero_die_2.png', './img/hero/die/hero_die_3.png', './img/hero/die/hero_die_4.png', './img/hero/die/hero_die_5.png', './img/hero/die/hero_die_6.png', './img/hero/die/hero_die_7.png', './img/hero/die/hero_die_8.png']
 }, 'stand', {
     run: 6,
     shoot: [17, 14, 12],
     die: 5
 }];
 const enemyConfig = [-80, 3, {
-    run: ['./img/enemy_run/enemy_run_1.png', './img/enemy_run/enemy_run_2.png', './img/enemy_run/enemy_run_3.png', './img/enemy_run/enemy_run_4.png', './img/enemy_run/enemy_run_5.png'],
-    die: ['./img/enemy_die/enemy_die_1.png', './img/enemy_die/enemy_die_2.png', './img/enemy_die/enemy_die_3.png', './img/enemy_die/enemy_die_4.png', './img/enemy_die/enemy_die_5.png', './img/enemy_die/enemy_die_6.png', './img/enemy_die/enemy_die_7.png', './img/enemy_die/enemy_die_8.png', './img/enemy_die/enemy_die_9.png', './img/enemy_die/enemy_die_10.png'],
-    attack: ['./img/enemy_attack/enemy_attack_1.png', './img/enemy_attack/enemy_attack_2.png', './img/enemy_attack/enemy_attack_3.png', './img/enemy_attack/enemy_attack_4.png', './img/enemy_attack/enemy_attack_5.png']
+    run: ['./img/enemy/brown/run/enemy_run_1.png', './img/enemy/brown/run/enemy_run_2.png', './img/enemy/brown/run/enemy_run_3.png', './img/enemy/brown/run/enemy_run_4.png', './img/enemy/brown/run/enemy_run_5.png'],
+    die: ['./img/enemy/brown/die/enemy_die_1.png', './img/enemy/brown/die/enemy_die_2.png', './img/enemy/brown/die/enemy_die_3.png', './img/enemy/brown/die/enemy_die_4.png', './img/enemy/brown/die/enemy_die_5.png', './img/enemy/brown/die/enemy_die_6.png', './img/enemy/brown/die/enemy_die_7.png', './img/enemy/brown/die/enemy_die_8.png', './img/enemy/brown/die/enemy_die_9.png', './img/enemy/brown/die/enemy_die_10.png'],
+    attack: ['./img/enemy/brown/attack/enemy_attack_1.png', './img/enemy/brown/attack/enemy_attack_2.png', './img/enemy/brown/attack/enemy_attack_3.png', './img/enemy/brown/attack/enemy_attack_4.png', './img/enemy/brown/attack/enemy_attack_5.png']
 }, 'run', {
     run: 4,
     die: 10,
