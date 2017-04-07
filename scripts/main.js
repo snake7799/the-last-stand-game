@@ -79,7 +79,7 @@ const enemyConfig = [
         attack: 5
     },
     1000];
-const enemyGeneratorConfig = [Enemy, enemyConfig, 750];
+const enemyGeneratorConfig = [Enemy, enemyConfig, 1000];
 const bulletConfigs = [[1100, './img/bullet/bullet_yellow.png', 1],
                        [1000, './img/bullet/bullet_green.png', 2],
                        [900, './img/bullet/bullet_blue.png', 3]];

@@ -572,7 +572,7 @@ const enemyConfig = [-80, 1, {
     die: 10,
     attack: 5
 }, 1000];
-const enemyGeneratorConfig = [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["a" /* Enemy */], enemyConfig, 750];
+const enemyGeneratorConfig = [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["a" /* Enemy */], enemyConfig, 1000];
 const bulletConfigs = [[1100, './img/bullet/bullet_yellow.png', 1], [1000, './img/bullet/bullet_green.png', 2], [900, './img/bullet/bullet_blue.png', 3]];
 const gunConfigs = [[__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfigs[0], 350, 20, 2000], [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfigs[1], 450, 20, 2000], [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfigs[2], 550, 20, 2000]];
 const creatureManager = new __WEBPACK_IMPORTED_MODULE_2__objectManager_js__["a" /* CreatureManager */]();
