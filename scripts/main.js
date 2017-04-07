@@ -45,7 +45,7 @@ const playerConfig = [80,
     {
         run: 6,
         shoot: [17, 14, 12],
-        die: 10
+        die: 5
     }];
 const enemyConfig = [
     -80,
@@ -78,7 +78,7 @@ const enemyConfig = [
         die: 10,
         attack: 5
     },
-    3000];
+    1000];
 const enemyGeneratorConfig = [Enemy, enemyConfig, 750];
 const bulletConfigs = [[1100, './img/bullet/bullet_yellow.png', 1],
                        [1000, './img/bullet/bullet_green.png', 2],

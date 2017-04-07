@@ -561,7 +561,7 @@ const playerConfig = [80, 400, 125, 3, {
 }, 'stand', {
     run: 6,
     shoot: [17, 14, 12],
-    die: 10
+    die: 5
 }];
 const enemyConfig = [-80, 1, {
     run: ['./img/enemy_run/enemy_run_1.png', './img/enemy_run/enemy_run_2.png', './img/enemy_run/enemy_run_3.png', './img/enemy_run/enemy_run_4.png', './img/enemy_run/enemy_run_5.png'],
@@ -571,7 +571,7 @@ const enemyConfig = [-80, 1, {
     run: 4,
     die: 10,
     attack: 5
-}, 3000];
+}, 1000];
 const enemyGeneratorConfig = [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["a" /* Enemy */], enemyConfig, 750];
 const bulletConfigs = [[1100, './img/bullet/bullet_yellow.png', 1], [1000, './img/bullet/bullet_green.png', 2], [900, './img/bullet/bullet_blue.png', 3]];
 const gunConfigs = [[__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfigs[0], 350, 20, 2000], [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfigs[1], 450, 20, 2000], [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfigs[2], 550, 20, 2000]];
