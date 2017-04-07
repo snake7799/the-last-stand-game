@@ -20,7 +20,8 @@ class Ammo extends MovingObject {
         this.damage = damage;
     }
 
-    update(deltaT) {
+    update(deltaT, context) {
+        this.draw(context);
         this.x += this.speed * deltaT;
     }
 }
@@ -88,7 +89,8 @@ class Player extends Creature {
         this.canMoveDown = true;
     }
 
-    update(deltaT) {
+    update(deltaT, context) {
+        this.draw(context);
         if (this.isDead) this.death(deltaT);
         else this.controls(deltaT);
     }
@@ -175,7 +177,8 @@ class Enemy extends Creature {
         this.isCompletelyDead = false;
     }
 
-    update(deltaT) {
+    update(deltaT, context) {
+        this.draw(context);
         if (this.isDead) this.death(deltaT);
         else if (this.isCollided) this.attack(deltaT);
         else this.run(this.speed, 0, deltaT);

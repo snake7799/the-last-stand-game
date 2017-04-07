@@ -214,12 +214,10 @@ const redraw = function() {
     time = Date.now();
 
     checkPlayerCollisions();
-    creatureManager.update(deltaT);
-    bulletManger.update(deltaT);
+    creatureManager.update(deltaT, ctx);
+    bulletManger.update(deltaT, ctx);
     weaponManager.update(deltaT);
     enemyGenerator.run();
-    creatureManager.draw(ctx);
-    bulletManger.draw(ctx);
 
 	if (player.health < 1) {
 		player.isDead = true;

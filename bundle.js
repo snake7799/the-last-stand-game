@@ -97,7 +97,8 @@ class Ammo extends MovingObject {
         this.damage = damage;
     }
 
-    update(deltaT) {
+    update(deltaT, context) {
+        this.draw(context);
         this.x += this.speed * deltaT;
     }
 }
@@ -165,7 +166,8 @@ class Player extends Creature {
         this.canMoveDown = true;
     }
 
-    update(deltaT) {
+    update(deltaT, context) {
+        this.draw(context);
         if (this.isDead) this.death(deltaT);else this.controls(deltaT);
     }
 
@@ -242,7 +244,8 @@ class Enemy extends Creature {
         this.isCompletelyDead = false;
     }
 
-    update(deltaT) {
+    update(deltaT, context) {
+        this.draw(context);
         if (this.isDead) this.death(deltaT);else if (this.isCollided) this.attack(deltaT);else this.run(this.speed, 0, deltaT);
     }
 
@@ -501,10 +504,10 @@ class ObjectManager extends Array {
 }
 
 class BulletManager extends ObjectManager {
-    update(deltaT) {
+    update(deltaT, context) {
         for (let i = 0; i < this.length; i++) {
             if (this[i].x < 1480) {
-                this[i].update(deltaT);
+                this[i].update(deltaT, context);
             } else {
                 this.splice(i, 1);
                 i -= 1;
@@ -514,13 +517,13 @@ class BulletManager extends ObjectManager {
 }
 
 class CreatureManager extends ObjectManager {
-    update(deltaT) {
+    update(deltaT, context) {
         this.sort((a, b) => {
             if (a.y > b.y) return 1;else return -1;
         });
         for (let i = 0; i < this.length; i++) {
             if (this[i].x > -100) {
-                this[i].update(deltaT);
+                this[i].update(deltaT, context);
             } else {
                 this.forEach((item, i, arr) => {
                     if (item instanceof __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["c" /* Player */]) arr[i].health -= 1;
@@ -687,12 +690,10 @@ const redraw = function () {
     time = Date.now();
 
     checkPlayerCollisions();
-    creatureManager.update(deltaT);
-    bulletManger.update(deltaT);
+    creatureManager.update(deltaT, ctx);
+    bulletManger.update(deltaT, ctx);
     weaponManager.update(deltaT);
     enemyGenerator.run();
-    creatureManager.draw(ctx);
-    bulletManger.draw(ctx);
 
     if (player.health < 1) {
         player.isDead = true;
