@@ -36,20 +36,26 @@ class Creature extends MovingObject {
         this.frameInterval = this.frameIntervals[initFrames];
         this.currentFrame = 0;
         this.isDead = false;
+        this.isFrozen = false;
+        this.frozenEffectInterval = 0;
+        this.curFrozenEffectInterval = 0;
+        this.isPoisoned = false;
+        this.poisonEffectInterval = 0;
+        this.curPoisonEffectInterval = 0;
     }
 
     frameChange(isForward, deltaT) {
         let nextFrame;
-                
+
         if (isForward) {
             nextFrame = this.currentFrame + this.frameInterval * deltaT;
-            
+
             if (nextFrame >= this.currentFrames.length) {
                 nextFrame = nextFrame % this.currentFrames.length;
             }
         } else {
             nextFrame = (this.currentFrame - this.frameInterval * deltaT);
-            
+
             if (nextFrame < 0) {
                 nextFrame = nextFrame % this.currentFrames.length + this.currentFrames.length - 0.00001;
             }
@@ -70,7 +76,21 @@ class Creature extends MovingObject {
         if (this.currentFrames !== this.frameSets.run) {
             this.changeState('run');
         }
-
+        if (this.isFrozen){
+            deltaT /= 2;
+            this.curFrozenEffectInterval = Date.now();
+        }
+        if (this.isPoisoned){
+            deltaT /= 1.5;
+            this.health -= 0.025;
+            this.curPoisonEffectInterval = Date.now();
+        }
+        if (this.curFrozenEffectInterval - this.frozenEffectInterval > 3000) {
+            this.isFrozen = false;
+        }
+        if (this.curPoisonEffectInterval - this.poisonEffectInterval > 1000) {
+            this.isPoisoned = false;
+        }
         this.frameChange(speedX >= 0, deltaT);
 
         this.x += speedX * deltaT;
