@@ -495,12 +495,6 @@ class ObjectManager extends Array {
             this[i].update();
         }
     }
-
-    draw(context) {
-        for (let i = 0; i < this.length; i++) {
-            this[i].draw(context);
-        }
-    }
 }
 
 class BulletManager extends ObjectManager {
