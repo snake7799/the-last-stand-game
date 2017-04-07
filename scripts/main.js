@@ -49,7 +49,7 @@ const playerConfig = [80,
     }];
 const enemyConfig = [
     -80,
-    1,
+    3,
     {
         run: ['./img/enemy_run/enemy_run_1.png',
             './img/enemy_run/enemy_run_2.png',
@@ -80,9 +80,9 @@ const enemyConfig = [
     },
     1000];
 const enemyGeneratorConfig = [Enemy, enemyConfig, 1000];
-const bulletConfigs = [[1100, './img/bullet/bullet_yellow.png', 1],
-                       [1000, './img/bullet/bullet_green.png', 2],
-                       [900, './img/bullet/bullet_blue.png', 3]];
+const bulletConfigs = [[1100, './img/bullet/bullet_yellow.png', 3],
+                       [1000, './img/bullet/bullet_green.png', 0.2],
+                       [900, './img/bullet/bullet_blue.png', 1]];
 const gunConfigs = [[Ammo, bulletConfigs[0], 350, 20, 2000],
                     [Ammo, bulletConfigs[1], 450, 20, 2000],
                     [Ammo, bulletConfigs[2], 550, 20, 2000]];
@@ -124,16 +124,24 @@ const checkBulletsCollisions = function() {
                     creatureManager[j].y - bulletManger[i].y > -100)) {
                 if (creatureManager[j] instanceof Enemy) {
                     creatureManager[j].health -= bulletManger[i].damage;
-                    if (creatureManager[j].health <= 0) {
-                        creatureManager[j].isDead = true;
+                    if (player.currentGun == player.guns[2]) {
+                        creatureManager[j].isFrozen = true;
+                        creatureManager[j].frozenEffectInterval = Date.now();
+                    }
+                    if (player.currentGun == player.guns[1]) {
+                        creatureManager[j].isPoisoned = true;
+                        creatureManager[j].poisonEffectInterval = Date.now();
                     }
                     bulletManger.splice(i, 1);
                 }
             }
         }
+        if (creatureManager[j].health <= 0) {
+            creatureManager[j].isDead = true;
+        }
         if(creatureManager[j].isCompletelyDead == true){
             creatureManager.splice(j, 1);
-			increaseScore();
+            increaseScore();
         }
     }
 };

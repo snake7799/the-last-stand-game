@@ -113,6 +113,12 @@ class Creature extends MovingObject {
         this.frameInterval = this.frameIntervals[initFrames];
         this.currentFrame = 0;
         this.isDead = false;
+        this.isFrozen = false;
+        this.frozenEffectInterval = 0;
+        this.curFrozenEffectInterval = 0;
+        this.isPoisoned = false;
+        this.poisonEffectInterval = 0;
+        this.curPoisonEffectInterval = 0;
     }
 
     frameChange(isForward, deltaT) {
@@ -147,7 +153,21 @@ class Creature extends MovingObject {
         if (this.currentFrames !== this.frameSets.run) {
             this.changeState('run');
         }
-
+        if (this.isFrozen) {
+            deltaT /= 2;
+            this.curFrozenEffectInterval = Date.now();
+        }
+        if (this.isPoisoned) {
+            deltaT /= 1.5;
+            this.health -= 0.025;
+            this.curPoisonEffectInterval = Date.now();
+        }
+        if (this.curFrozenEffectInterval - this.frozenEffectInterval > 3000) {
+            this.isFrozen = false;
+        }
+        if (this.curPoisonEffectInterval - this.poisonEffectInterval > 1000) {
+            this.isPoisoned = false;
+        }
         this.frameChange(speedX >= 0, deltaT);
 
         this.x += speedX * deltaT;
@@ -563,7 +583,7 @@ const playerConfig = [80, 400, 125, 3, {
     shoot: [17, 14, 12],
     die: 5
 }];
-const enemyConfig = [-80, 1, {
+const enemyConfig = [-80, 3, {
     run: ['./img/enemy_run/enemy_run_1.png', './img/enemy_run/enemy_run_2.png', './img/enemy_run/enemy_run_3.png', './img/enemy_run/enemy_run_4.png', './img/enemy_run/enemy_run_5.png'],
     die: ['./img/enemy_die/enemy_die_1.png', './img/enemy_die/enemy_die_2.png', './img/enemy_die/enemy_die_3.png', './img/enemy_die/enemy_die_4.png', './img/enemy_die/enemy_die_5.png', './img/enemy_die/enemy_die_6.png', './img/enemy_die/enemy_die_7.png', './img/enemy_die/enemy_die_8.png', './img/enemy_die/enemy_die_9.png', './img/enemy_die/enemy_die_10.png'],
     attack: ['./img/enemy_attack/enemy_attack_1.png', './img/enemy_attack/enemy_attack_2.png', './img/enemy_attack/enemy_attack_3.png', './img/enemy_attack/enemy_attack_4.png', './img/enemy_attack/enemy_attack_5.png']
@@ -573,7 +593,7 @@ const enemyConfig = [-80, 1, {
     attack: 5
 }, 1000];
 const enemyGeneratorConfig = [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["a" /* Enemy */], enemyConfig, 1000];
-const bulletConfigs = [[1100, './img/bullet/bullet_yellow.png', 1], [1000, './img/bullet/bullet_green.png', 2], [900, './img/bullet/bullet_blue.png', 3]];
+const bulletConfigs = [[1100, './img/bullet/bullet_yellow.png', 3], [1000, './img/bullet/bullet_green.png', 0.2], [900, './img/bullet/bullet_blue.png', 1]];
 const gunConfigs = [[__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfigs[0], 350, 20, 2000], [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfigs[1], 450, 20, 2000], [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfigs[2], 550, 20, 2000]];
 const creatureManager = new __WEBPACK_IMPORTED_MODULE_2__objectManager_js__["a" /* CreatureManager */]();
 const bulletManger = new __WEBPACK_IMPORTED_MODULE_2__objectManager_js__["b" /* BulletManager */]();
@@ -610,12 +630,20 @@ const checkBulletsCollisions = function () {
             if (creatureManager[j].x - bulletManger[i].x < 0 && creatureManager[j].x - bulletManger[i].x > -120 && creatureManager[j].y - bulletManger[i].y < 0 && creatureManager[j].y - bulletManger[i].y > -100) {
                 if (creatureManager[j] instanceof __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["a" /* Enemy */]) {
                     creatureManager[j].health -= bulletManger[i].damage;
-                    if (creatureManager[j].health <= 0) {
-                        creatureManager[j].isDead = true;
+                    if (player.currentGun == player.guns[2]) {
+                        creatureManager[j].isFrozen = true;
+                        creatureManager[j].frozenEffectInterval = Date.now();
+                    }
+                    if (player.currentGun == player.guns[1]) {
+                        creatureManager[j].isPoisoned = true;
+                        creatureManager[j].poisonEffectInterval = Date.now();
                     }
                     bulletManger.splice(i, 1);
                 }
             }
+        }
+        if (creatureManager[j].health <= 0) {
+            creatureManager[j].isDead = true;
         }
         if (creatureManager[j].isCompletelyDead == true) {
             creatureManager.splice(j, 1);
