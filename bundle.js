@@ -627,8 +627,8 @@ const checkBulletsCollisions = function () {
 };
 
 const checkPlayerCollisions = function () {
-    player.canMoveForeword = true;
-    player.canMoveBackword = true;
+    player.canMoveForward = true;
+    player.canMoveBackward = true;
     player.canMoveDown = true;
     player.canMoveUp = true;
     for (let i = 0; i < creatureManager.length; i++) {
@@ -636,12 +636,12 @@ const checkPlayerCollisions = function () {
         if (creatureManager[i].x - player.x >= 60 && creatureManager[i].x - player.x <= 70 && creatureManager[i].y - player.y < 30 && creatureManager[i].y - player.y > -30 && player.isDead == false) {
             if (creatureManager[i] instanceof __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["a" /* Enemy */]) {
                 creatureManager[i].isCollided = true;
-                player.canMoveForeword = false;
+                player.canMoveForward = false;
             }
         }
         if (creatureManager[i].x - player.x >= -70 && creatureManager[i].x - player.x <= -60 && creatureManager[i].y - player.y < 30 && creatureManager[i].y - player.y > -30 && player.isDead == false) {
             if (creatureManager[i] instanceof __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["a" /* Enemy */]) {
-                player.canMoveBackword = false;
+                player.canMoveBackward = false;
             }
         }
         if (creatureManager[i].y - player.y <= 20 && creatureManager[i].y - player.y >= 10 && creatureManager[i].x - player.x <= 70 && creatureManager[i].x - player.x >= -70 && player.isDead == false) {
@@ -656,7 +656,7 @@ const checkPlayerCollisions = function () {
         }
         if (creatureManager[i].isAttackComplete) {
             creatureManager[i].isAttackComplete = false;
-            if (player.canMoveForeword == false) player.health -= 1;
+            if (player.canMoveForward == false) player.health -= 1;
         }
     }
 };
