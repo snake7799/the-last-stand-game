@@ -144,7 +144,6 @@ class Creature extends MovingObject {
 
     run(deltaX, deltaY) {
         if (this.isDead) {
-
             this.death();
             return;
         }
@@ -303,7 +302,8 @@ class Enemy extends Creature {
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return drawInterface; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return increaseScore; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return drawWeaponIndicator; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return drawPause; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return drawPause; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return gameOver; });
 const healthImage = new Image();
 healthImage.src = './img/interface/health.png';
 let score = 0;
@@ -319,7 +319,7 @@ const drawStartScreen = function (context) {
 
 	context.font = '108px Agency FB';
 	context.fillStyle = '#ffffff';
-	context.fillText('Space Shooter', 920, 250);
+	context.fillText('The Last Stand', 920, 250);
 
 	context.font = '48px Agency FB';
 	context.fillText('Click to PLAY', 1060, 380);
@@ -384,6 +384,21 @@ const drawPause = function (context) {
 	context.fillText('JSkills Game Team © 2017', 645, 680);
 
 	context.font = '48px Agency FB';
+};
+
+const gameOver = function (context) {
+	context.save();
+	context.font = 'bold 140px Agency FB';
+	context.fillStyle = '#d03f9e';
+	context.fillText('G A M E   O V E R', 370, 370);
+
+	context.font = '36px Agency FB';
+	context.fillStyle = '#ffffff';
+	context.fillText('Click to TRY AGAIN', 645, 460);
+
+	context.font = '26px Agency FB';
+	context.fillText('JSkills Game Team © 2017', 645, 680);
+	context.restore();
 };
 
 
@@ -648,8 +663,10 @@ const checkPlayerCollisions = function () {
 document.addEventListener('click', gameStart, false);
 
 function gameStart() {
-    isGameStarted = true;
-    document.removeEventListener('click', gameStart, false);
+    if (!isGameStarted) {
+        isGameStarted = true;
+        document.removeEventListener('click', gameStart, false);
+    } else document.location.reload();
 };
 
 const redraw = function () {
@@ -670,9 +687,13 @@ const redraw = function () {
     weaponManager.run();
     enemyGenerator.run();
 
-    if (player.health < 1) player.isDead = true;
+    if (player.health < 1) {
+        player.isDead = true;
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["e" /* gameOver */])(ctx);
+        document.addEventListener('click', gameStart, false);
+    }
     if (isStoped) {
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["e" /* drawPause */])(ctx);
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["f" /* drawPause */])(ctx);
         return;
     }
 

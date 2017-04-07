@@ -1,5 +1,5 @@
 import {keyState, Ammo, Player, Enemy} from './movingObject.js';
-import {drawStartScreen, drawInterface, increaseScore, drawWeaponIndicator, drawPause} from './interface.js';
+import {drawStartScreen, drawInterface, increaseScore, drawWeaponIndicator, drawPause, gameOver} from './interface.js';
 import {ObjectManager, BulletManager, CreatureManager} from './objectManager.js';
 import {EnemyGenerator, Gun} from './objectGenerator.js';
 
@@ -188,8 +188,10 @@ const checkPlayerCollisions = function() {
 document.addEventListener('click', gameStart, false);
 
 function gameStart() {
-	isGameStarted = true;
-	document.removeEventListener('click', gameStart, false);
+	if (!isGameStarted) {
+		isGameStarted = true;
+		document.removeEventListener('click', gameStart, false);
+	} else document.location.reload();
 };
 
 const redraw = function() {
@@ -210,7 +212,11 @@ const redraw = function() {
     weaponManager.run();
     enemyGenerator.run();
 
-    if (player.health < 1) player.isDead = true;
+	if (player.health < 1) {
+		player.isDead = true;
+		gameOver(ctx);
+		document.addEventListener('click', gameStart, false);
+	}
     if (isStoped) {
 		drawPause(ctx);
 		return;

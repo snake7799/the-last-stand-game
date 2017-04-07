@@ -13,7 +13,7 @@ const drawStartScreen = function(context) {
 
 	context.font = '108px Agency FB';
 	context.fillStyle = '#ffffff';
-	context.fillText('Space Shooter', 920, 250);
+	context.fillText('The Last Stand', 920, 250);
 
 	context.font = '48px Agency FB';
 	context.fillText('Click to PLAY', 1060, 380);
@@ -80,4 +80,19 @@ const drawPause = function(context) {
 	context.font = '48px Agency FB';
 };
 
-export {drawStartScreen, drawInterface, increaseScore, drawWeaponIndicator, drawPause};
+const gameOver = function(context) {
+	context.save();
+	context.font = 'bold 140px Agency FB';
+	context.fillStyle = '#d03f9e';
+	context.fillText('G A M E   O V E R', 370, 370);
+
+	context.font = '36px Agency FB';
+	context.fillStyle = '#ffffff';
+	context.fillText('Click to TRY AGAIN', 645, 460);
+	
+	context.font = '26px Agency FB';
+	context.fillText('JSkills Game Team © 2017', 645, 680);
+	context.restore();
+};
+
+export {drawStartScreen, drawInterface, increaseScore, drawWeaponIndicator, drawPause, gameOver};
