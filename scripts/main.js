@@ -103,6 +103,7 @@ document.addEventListener('keydown', function(e) {
     }
     if (e.keyCode == 27 && isStoped != false) {
         isStoped = false;
+        time = Date.now();
         requestAnimationFrame(redraw);
         return;
     }
