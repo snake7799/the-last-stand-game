@@ -240,7 +240,7 @@ class Enemy extends Creature {
         this.lastAttack = 0;
         this.isCollided = false;
         this.isReadyToAttack = true;
-        this.isAttackComplete = true;
+        this.isAttackComplete = false;
         this.isCompletelyDead = false;
     }
 
