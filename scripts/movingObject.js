@@ -93,6 +93,13 @@ class Creature extends MovingObject {
         }
         this.frameChange(speedX >= 0, deltaT);
 
+        this.effectsCheck()
+
+        this.x += speedX * deltaT;
+        this.y += speedY * deltaT;
+    }
+
+    effectsCheck() {
         if (this.isFrozen) {
             const tempImg = this.currentFrames[Math.floor(this.currentFrame)].split('/');
             tempImg[3] = 'blue';
@@ -102,9 +109,6 @@ class Creature extends MovingObject {
             tempImg[3] = 'green';
             this.image.src = tempImg.join('/');
         }
-
-        this.x += speedX * deltaT;
-        this.y += speedY * deltaT;
     }
 }
 
@@ -221,6 +225,8 @@ class Enemy extends Creature {
 
         this.frameChange(true, deltaT);
 
+        this.effectsCheck()
+
         if (this.currentFrame >= this.currentFrames.length - 1) {
             this.isCompletelyDead = true;
         }
@@ -241,6 +247,8 @@ class Enemy extends Creature {
                 this.isAttackComplete = true;
                 this.isReadyToAttack = false;
             }
+
+            this.effectsCheck()
         } else if (Date.now() - this.lastAttack > this.attackCooldown) {
             this.isReadyToAttack = true;
         }
