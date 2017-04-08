@@ -739,12 +739,14 @@ const redraw = function () {
     }
 
     if (isGameOver) {
-        if (Date.now() - gameOverTime > 2000) __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["d" /* gameOver */])(ctx);
-    } else __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["e" /* drawWeaponIndicator */])(ctx, player);
+        if (time - gameOverTime > 2000) __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["d" /* gameOver */])(ctx);
+    } else {
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["e" /* drawWeaponIndicator */])(ctx, player);
 
-    if (isStoped) {
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["f" /* drawPause */])(ctx);
-        return;
+        if (isStoped) {
+            __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["f" /* drawPause */])(ctx);
+            return;
+        }
     }
 
     checkBulletsCollisions();

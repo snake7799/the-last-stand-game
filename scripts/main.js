@@ -250,13 +250,15 @@ const redraw = function() {
 	}
 
     if (isGameOver) {
-        if ((Date.now() - gameOverTime) > 2000) gameOver(ctx);
-    } else drawWeaponIndicator(ctx, player);
-    
-    if (isStoped) {
-		drawPause(ctx);
-		return;
-	}
+        if ((time - gameOverTime) > 2000) gameOver(ctx);
+    } else {
+        drawWeaponIndicator(ctx, player);
+        
+        if (isStoped) {
+		    drawPause(ctx);
+		    return;
+	    }
+    }
 
     checkBulletsCollisions();
     requestAnimationFrame(redraw);
