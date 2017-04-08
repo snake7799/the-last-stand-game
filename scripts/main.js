@@ -86,15 +86,17 @@ const bulletConfigs = [[1100, './img/bullet/bullet_yellow.png', 3],
 const gunConfigs = [[Ammo, bulletConfigs[0], 350, 20, 2000],
                     [Ammo, bulletConfigs[1], 450, 20, 2000],
                     [Ammo, bulletConfigs[2], 550, 20, 2000]];
-const creatureManager = new CreatureManager();
-const bulletManger = new BulletManager();
-const weaponManager = new ObjectManager();
 const weaponImages = [];
-const player = new Player(...playerConfig, weaponManager);
-const enemyGenerator = new EnemyGenerator(creatureManager, ...enemyGeneratorConfig);
 let isGameStarted = false;
+let isGameOver = false;
 let isStoped = false;
+let creatureManager;
+let bulletManger;
+let weaponManager;
+let player;
+let enemyGenerator;
 let time;
+let gameOverTime;
 
 document.addEventListener('keydown', function(e) {
     if (e.keyCode == 27 && isStoped == false) {
@@ -121,7 +123,8 @@ const checkBulletsCollisions = function() {
             if ((creatureManager[j].x - bulletManger[i].x < 0 &&
                     creatureManager[j].x - bulletManger[i].x > -120) &&
                 (creatureManager[j].y - bulletManger[i].y < 0 &&
-                    creatureManager[j].y - bulletManger[i].y > -100)) {
+                    creatureManager[j].y - bulletManger[i].y > -100) &&
+                    bulletManger[i].x < 1480) {
                 if (creatureManager[j] instanceof Enemy) {
                     creatureManager[j].health -= bulletManger[i].damage;
                     if (player.currentGun == player.guns[2]) {
@@ -202,10 +205,23 @@ document.addEventListener('click', gameStart, false);
 function gameStart() {
 	if (!isGameStarted) {
 		isGameStarted = true;
-        time = Date.now();
-		document.removeEventListener('click', gameStart, false);
-	} else document.location.reload();
-};
+	}
+
+    creatureManager = new CreatureManager();
+    bulletManger = new BulletManager();
+    weaponManager = new ObjectManager();
+    player = new Player(...playerConfig, weaponManager);
+    enemyGenerator = new EnemyGenerator(creatureManager, ...enemyGeneratorConfig);
+    weaponManager.push(new Gun(player, bulletManger, ...gunConfigs[0]));
+    weaponManager.push(new Gun(player, bulletManger, ...gunConfigs[1]));
+    weaponManager.push(new Gun(player, bulletManger, ...gunConfigs[2]));
+    player.currentGun = player.guns[0];
+    creatureManager.push(player);
+    isGameOver = false;
+    isStoped = false;
+    document.removeEventListener('click', gameStart, false);
+    time = Date.now();
+}
 
 const redraw = function() {
     ctx.drawImage(background, 0, 0);
@@ -217,7 +233,6 @@ const redraw = function() {
 	}
 
 	drawInterface(ctx, player, weaponImages);
-	drawWeaponIndicator(ctx, player);
 
     const deltaT = (Date.now() - time) / 1000;
     time = Date.now();
@@ -228,15 +243,23 @@ const redraw = function() {
     weaponManager.update(deltaT);
     enemyGenerator.run();
 
-	if (player.health < 1) {
+	if (player.health < 1 && !isGameOver) {
 		player.isDead = true;
-		gameOver(ctx);
+        isGameOver = true;
+        gameOverTime = Date.now();
 		document.addEventListener('click', gameStart, false);
 	}
-    if (isStoped) {
-		drawPause(ctx);
-		return;
-	}
+
+    if (isGameOver) {
+        if ((time - gameOverTime) > 2000) gameOver(ctx);
+    } else {
+        drawWeaponIndicator(ctx, player);
+        
+        if (isStoped) {
+		    drawPause(ctx);
+		    return;
+	    }
+    }
 
     checkBulletsCollisions();
     requestAnimationFrame(redraw);
@@ -254,12 +277,6 @@ const redraw = function() {
     weaponImages[1].src = './img/interface/basic.jpg';
     weaponImages[2].src = './img/interface/poison.jpg';
     weaponImages[3].src = './img/interface/frost.jpg';
-
-    creatureManager.push(player);
-    weaponManager.push(new Gun(player, bulletManger, ...gunConfigs[0]));
-    weaponManager.push(new Gun(player, bulletManger, ...gunConfigs[1]));
-    weaponManager.push(new Gun(player, bulletManger, ...gunConfigs[2]));
-    player.currentGun = player.guns[0];
 
     requestAnimationFrame(redraw);
 }());
