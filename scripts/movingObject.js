@@ -93,6 +93,16 @@ class Creature extends MovingObject {
         }
         this.frameChange(speedX >= 0, deltaT);
 
+        if (this.isFrozen) {
+            const tempImg = this.currentFrames[Math.floor(this.currentFrame)].split('/');
+            tempImg[3] = 'blue';
+            this.image.src = tempImg.join('/');
+        } else if (this.isPoisoned) {
+            const tempImg = this.currentFrames[Math.floor(this.currentFrame)].split('/');
+            tempImg[3] = 'green';
+            this.image.src = tempImg.join('/');
+        }
+
         this.x += speedX * deltaT;
         this.y += speedY * deltaT;
     }
