@@ -707,6 +707,7 @@ function gameStart() {
     player.currentGun = player.guns[0];
     creatureManager.push(player);
     isGameOver = false;
+    isStoped = false;
     document.removeEventListener('click', gameStart, false);
     time = Date.now();
 }
