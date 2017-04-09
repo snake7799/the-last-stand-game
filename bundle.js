@@ -471,8 +471,6 @@ class ObjectGenerator {
 class EnemyGenerator extends ObjectGenerator {
     constructor(objects, objectConstructor, objectConfig, interval) {
         super(objects, objectConstructor, objectConfig);
-        this.defaultSpeed = objectConfig[0];
-        this.defaultFrameSpeed = objectConfig[4]['run'];
         this.interval = interval;
     }
 
@@ -480,13 +478,15 @@ class EnemyGenerator extends ObjectGenerator {
         if (Date.now() - this.lastGeneration > this.interval) {
             const spawnPosY = 244 + Math.random() * 341;
             const speedCoefficient = 1 + 0.5 * Math.random();
-            const enemySpeed = this.defaultSpeed * speedCoefficient;
-            const enemyFrameSpeed = this.defaultFrameSpeed * speedCoefficient;
-            this.objectConfig[0] = enemySpeed;
-            this.objectConfig[4]['run'] = enemyFrameSpeed;
+            const enemySpeed = this.objectConfig[0] * speedCoefficient;
+            const enemyFrameSpeed = this.objectConfig[4]['run'] * speedCoefficient;
             this.lastGeneration = Date.now();
 
-            this.objects.push(new this.objectConstructor(1580, spawnPosY, ...this.objectConfig));
+            const enemy = new this.objectConstructor(1580, spawnPosY, ...this.objectConfig);
+            enemy.speed = enemySpeed;
+            enemy.frameInterval = enemyFrameSpeed;
+
+            this.objects.push(enemy);
         }
     }
 }
