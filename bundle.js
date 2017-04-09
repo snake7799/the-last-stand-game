@@ -113,12 +113,6 @@ class Creature extends MovingObject {
         this.frameInterval = this.frameIntervals[initFrames];
         this.currentFrame = 0;
         this.isDead = false;
-        this.isFrozen = false;
-        this.frozenEffectInterval = 0;
-        this.curFrozenEffectInterval = 0;
-        this.isPoisoned = false;
-        this.poisonEffectInterval = 0;
-        this.curPoisonEffectInterval = 0;
     }
 
     frameChange(isForward, deltaT) {
@@ -153,39 +147,11 @@ class Creature extends MovingObject {
         if (this.currentFrames !== this.frameSets.run) {
             this.changeState('run');
         }
-        if (this.isFrozen) {
-            deltaT /= 3;
-            this.curFrozenEffectInterval = Date.now();
-        }
-        if (this.isPoisoned) {
-            deltaT /= 2;
-            this.health -= 0.025;
-            this.curPoisonEffectInterval = Date.now();
-        }
-        if (this.curFrozenEffectInterval - this.frozenEffectInterval > 3000) {
-            this.isFrozen = false;
-        }
-        if (this.curPoisonEffectInterval - this.poisonEffectInterval > 1000) {
-            this.isPoisoned = false;
-        }
-        this.frameChange(speedX >= 0, deltaT);
 
-        this.effectsCheck();
+        this.frameChange(speedX >= 0, deltaT);
 
         this.x += speedX * deltaT;
         this.y += speedY * deltaT;
-    }
-
-    effectsCheck() {
-        if (this.isFrozen) {
-            const tempImg = this.currentFrames[Math.floor(this.currentFrame)].split('/');
-            tempImg[3] = 'blue';
-            this.image.src = tempImg.join('/');
-        } else if (this.isPoisoned) {
-            const tempImg = this.currentFrames[Math.floor(this.currentFrame)].split('/');
-            tempImg[3] = 'green';
-            this.image.src = tempImg.join('/');
-        }
     }
 }
 
@@ -276,11 +242,41 @@ class Enemy extends Creature {
         this.isReadyToAttack = true;
         this.isAttackComplete = false;
         this.isCompletelyDead = false;
+        this.isFrozen = false;
+        this.frozenEffectInterval = 0;
+        this.curFrozenEffectInterval = 0;
+        this.isPoisoned = false;
+        this.poisonEffectInterval = 0;
+        this.curPoisonEffectInterval = 0;
     }
 
     update(deltaT, context) {
         this.draw(context);
+
         if (this.isDead) this.death(deltaT);else if (this.isCollided) this.attack(deltaT);else this.run(this.speed, 0, deltaT);
+
+        this.effectsFrameChange();
+    }
+
+    run(speedX, speedY, deltaT) {
+        if (this.isPoisoned) {
+            this.health -= 1.5 * deltaT;
+            deltaT /= 2;
+            this.curPoisonEffectInterval = Date.now();
+        }
+        if (this.isFrozen) {
+            deltaT /= 3;
+            this.curFrozenEffectInterval = Date.now();
+        }
+
+        if (this.curFrozenEffectInterval - this.frozenEffectInterval > 3000) {
+            this.isFrozen = false;
+        }
+        if (this.curPoisonEffectInterval - this.poisonEffectInterval > 1000) {
+            this.isPoisoned = false;
+        }
+
+        super.run(speedX, speedY, deltaT);
     }
 
     death(deltaT) {
@@ -289,8 +285,6 @@ class Enemy extends Creature {
         }
 
         this.frameChange(true, deltaT);
-
-        this.effectsCheck();
 
         if (this.currentFrame >= this.currentFrames.length - 1) {
             this.isCompletelyDead = true;
@@ -312,10 +306,20 @@ class Enemy extends Creature {
                 this.isAttackComplete = true;
                 this.isReadyToAttack = false;
             }
-
-            this.effectsCheck();
         } else if (Date.now() - this.lastAttack > this.attackCooldown) {
             this.isReadyToAttack = true;
+        }
+    }
+
+    effectsFrameChange() {
+        if (this.isFrozen) {
+            const tempImg = this.currentFrames[Math.floor(this.currentFrame)].split('/');
+            tempImg[3] = 'blue';
+            this.image.src = tempImg.join('/');
+        } else if (this.isPoisoned) {
+            const tempImg = this.currentFrames[Math.floor(this.currentFrame)].split('/');
+            tempImg[3] = 'green';
+            this.image.src = tempImg.join('/');
         }
     }
 }
