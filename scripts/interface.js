@@ -29,11 +29,21 @@ const drawStartScreen = function(context) {
 	context.restore();
 };
 
-const drawInterface = function(context, object, ammoImages) {
+const drawInterface = function(context, object, ammoImages, isUltReady) {
 	let healthImagePos = 1415;
 	for (let i = 0; i < object.health; i++) {
 		context.drawImage(healthImage, healthImagePos, 30);
 		healthImagePos -= 50;
+	}
+
+	if (isUltReady) {
+		context.font = '32px Agency FB';
+		context.fillStyle = '#ffffff';
+		context.fillText('Press Q to activate KTA', 655, 600);
+	} else {
+		context.font = '32px Agency FB';
+		context.fillStyle = '#ffffff';
+		context.fillText('KTA is not ready', 655, 600);
 	}
 
     let weaponImagePos = 40;
@@ -52,6 +62,10 @@ const increaseScore = function() {
 	score += 10;
 };
 
+const getScore = function() {
+	return score;
+}
+
 const drawWeaponIndicator = function(context, object) {
 	context.beginPath();
 	context.moveTo(object.x + 35, object.y + 10);
@@ -69,14 +83,14 @@ const drawWeaponIndicator = function(context, object) {
 const drawPause = function(context) {
 	context.fillStyle = 'rgba(127, 62, 162, 0.5)';
 	context.fillRect(0, 0, 1481, 700);
-	
+
 	context.font = '92px Agency FB';
 	context.fillStyle = '#ffffff';
 	context.fillText('PAUSE', 655, 370);
-	
+
 	context.font = '26px Agency FB';
 	context.fillText('JSkills Game Team © 2017', 645, 680);
-	
+
 	context.font = '48px Agency FB';
 };
 
@@ -89,10 +103,10 @@ const gameOver = function(context) {
 	context.font = '36px Agency FB';
 	context.fillStyle = '#ffffff';
 	context.fillText('Click to TRY AGAIN', 645, 460);
-	
+
 	context.font = '26px Agency FB';
 	context.fillText('JSkills Game Team © 2017', 645, 680);
 	context.restore();
 };
 
-export {drawStartScreen, drawInterface, increaseScore, drawWeaponIndicator, drawPause, gameOver};
+export {drawStartScreen, drawInterface, increaseScore, drawWeaponIndicator, drawPause, gameOver, getScore};

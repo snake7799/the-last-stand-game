@@ -1,5 +1,5 @@
 import {keyState, Ammo, Player, Enemy} from './movingObject.js';
-import {drawStartScreen, drawInterface, increaseScore, drawWeaponIndicator, drawPause, gameOver} from './interface.js';
+import {drawStartScreen, drawInterface, increaseScore, drawWeaponIndicator, drawPause, gameOver, getScore} from './interface.js';
 import {ObjectManager, BulletManager, CreatureManager} from './objectManager.js';
 import {EnemyGenerator, Gun} from './objectGenerator.js';
 
@@ -48,7 +48,7 @@ const playerConfig = [80,
         die: 5
     }];
 const enemyConfig = [
-    -80,
+    -70,
     3,
     {
         run: ['./img/enemy/brown/run/enemy_run_1.png',
@@ -78,18 +78,19 @@ const enemyConfig = [
         die: 10,
         attack: 5
     },
-    1000];
+    2000];
 const enemyGeneratorConfig = [Enemy, enemyConfig, 1000];
 const bulletConfigs = [[1100, './img/bullet/bullet_yellow.png', 3],
                        [1000, './img/bullet/bullet_green.png', 0.2],
-                       [900, './img/bullet/bullet_blue.png', 1]];
-const gunConfigs = [[Ammo, bulletConfigs[0], 350, 20, 2000],
-                    [Ammo, bulletConfigs[1], 450, 20, 2000],
-                    [Ammo, bulletConfigs[2], 550, 20, 2000]];
+                       [1500, './img/bullet/bullet_blue.png', 0.8]];
+const gunConfigs = [[Ammo, bulletConfigs[0], 350, 10, 5500],
+                    [Ammo, bulletConfigs[1], 250, 30, 1500],
+                    [Ammo, bulletConfigs[2], 150, 40, 3500]];
 const weaponImages = [];
 let isGameStarted = false;
 let isGameOver = false;
 let isStoped = false;
+let isUltReady = false;
 let creatureManager;
 let bulletManger;
 let weaponManager;
@@ -109,7 +110,10 @@ document.addEventListener('keydown', function(e) {
         requestAnimationFrame(redraw);
         return;
     }
-
+    if (e.keyCode == 81 && isUltReady) {
+        killEmAll();
+        isUltReady = false;
+    }
     keyState[e.keyCode || e.which] = true;
 }, true);
 
@@ -125,7 +129,7 @@ const checkBulletsCollisions = function() {
                 (creatureManager[j].y - bulletManger[i].y < 0 &&
                     creatureManager[j].y - bulletManger[i].y > -100) &&
                     bulletManger[i].x < 1480) {
-                if (creatureManager[j] instanceof Enemy) {
+                if (creatureManager[j] instanceof Enemy && creatureManager[j].isDead == false) {
                     creatureManager[j].health -= bulletManger[i].damage;
                     if (player.currentGun == player.guns[2]) {
                         creatureManager[j].isFrozen = true;
@@ -200,6 +204,21 @@ const checkPlayerCollisions = function() {
     }
 };
 
+const checkScore = function() {
+    let curScore = getScore();
+    if (Math.floor(curScore % 500) == 0 && curScore != 0) {
+        isUltReady = true;
+    }
+}
+
+const killEmAll = function() {
+    for (let i = 0; i < creatureManager.length; i++) {
+        if (creatureManager[i] instanceof Enemy) {
+            creatureManager[i].health = 0;
+        }
+    }
+}
+
 document.addEventListener('click', gameStart, false);
 
 function gameStart() {
@@ -232,8 +251,6 @@ const redraw = function() {
 		return;
 	}
 
-	drawInterface(ctx, player, weaponImages);
-
     const deltaT = (Date.now() - time) / 1000;
     time = Date.now();
 
@@ -242,7 +259,8 @@ const redraw = function() {
     bulletManger.update(deltaT, ctx);
     weaponManager.update(deltaT);
     enemyGenerator.run();
-
+	drawInterface(ctx, player, weaponImages, isUltReady);
+    checkScore();
 	if (player.health < 1 && !isGameOver) {
 		player.isDead = true;
         isGameOver = true;
@@ -254,7 +272,7 @@ const redraw = function() {
         if ((time - gameOverTime) > 2000) gameOver(ctx);
     } else {
         drawWeaponIndicator(ctx, player);
-        
+
         if (isStoped) {
 		    drawPause(ctx);
 		    return;
