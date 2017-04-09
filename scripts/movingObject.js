@@ -77,11 +77,11 @@ class Creature extends MovingObject {
             this.changeState('run');
         }
         if (this.isFrozen){
-            deltaT /= 2;
+            deltaT /= 3;
             this.curFrozenEffectInterval = Date.now();
         }
         if (this.isPoisoned){
-            deltaT /= 1.5;
+            deltaT /= 2;
             this.health -= 0.025;
             this.curPoisonEffectInterval = Date.now();
         }

@@ -154,11 +154,11 @@ class Creature extends MovingObject {
             this.changeState('run');
         }
         if (this.isFrozen) {
-            deltaT /= 2;
+            deltaT /= 3;
             this.curFrozenEffectInterval = Date.now();
         }
         if (this.isPoisoned) {
-            deltaT /= 1.5;
+            deltaT /= 2;
             this.health -= 0.025;
             this.curPoisonEffectInterval = Date.now();
         }
@@ -327,12 +327,13 @@ class Enemy extends Creature {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return drawStartScreen; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return drawInterface; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return drawStartScreen; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return drawInterface; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return increaseScore; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return drawWeaponIndicator; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return drawPause; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return gameOver; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return drawWeaponIndicator; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return drawPause; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return gameOver; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return getScore; });
 const healthImage = new Image();
 healthImage.src = './img/interface/health.png';
 let score = 0;
@@ -364,11 +365,21 @@ const drawStartScreen = function (context) {
 	context.restore();
 };
 
-const drawInterface = function (context, object, ammoImages) {
+const drawInterface = function (context, object, ammoImages, isUltReady) {
 	let healthImagePos = 1415;
 	for (let i = 0; i < object.health; i++) {
 		context.drawImage(healthImage, healthImagePos, 30);
 		healthImagePos -= 50;
+	}
+
+	if (isUltReady) {
+		context.font = '32px Agency FB';
+		context.fillStyle = '#ffffff';
+		context.fillText('Press Q to activate KTA', 655, 600);
+	} else {
+		context.font = '32px Agency FB';
+		context.fillStyle = '#ffffff';
+		context.fillText('KTA is not ready', 655, 600);
 	}
 
 	let weaponImagePos = 40;
@@ -385,6 +396,10 @@ const drawInterface = function (context, object, ammoImages) {
 
 const increaseScore = function () {
 	score += 10;
+};
+
+const getScore = function () {
+	return score;
 };
 
 const drawWeaponIndicator = function (context, object) {
@@ -603,7 +618,7 @@ const playerConfig = [80, 400, 125, 3, {
     shoot: [17, 14, 12],
     die: 5
 }];
-const enemyConfig = [-80, 3, {
+const enemyConfig = [-70, 3, {
     run: ['./img/enemy/brown/run/enemy_run_1.png', './img/enemy/brown/run/enemy_run_2.png', './img/enemy/brown/run/enemy_run_3.png', './img/enemy/brown/run/enemy_run_4.png', './img/enemy/brown/run/enemy_run_5.png'],
     die: ['./img/enemy/brown/die/enemy_die_1.png', './img/enemy/brown/die/enemy_die_2.png', './img/enemy/brown/die/enemy_die_3.png', './img/enemy/brown/die/enemy_die_4.png', './img/enemy/brown/die/enemy_die_5.png', './img/enemy/brown/die/enemy_die_6.png', './img/enemy/brown/die/enemy_die_7.png', './img/enemy/brown/die/enemy_die_8.png', './img/enemy/brown/die/enemy_die_9.png', './img/enemy/brown/die/enemy_die_10.png'],
     attack: ['./img/enemy/brown/attack/enemy_attack_1.png', './img/enemy/brown/attack/enemy_attack_2.png', './img/enemy/brown/attack/enemy_attack_3.png', './img/enemy/brown/attack/enemy_attack_4.png', './img/enemy/brown/attack/enemy_attack_5.png']
@@ -611,14 +626,15 @@ const enemyConfig = [-80, 3, {
     run: 4,
     die: 10,
     attack: 5
-}, 1000];
+}, 2000];
 const enemyGeneratorConfig = [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["a" /* Enemy */], enemyConfig, 1000];
-const bulletConfigs = [[1100, './img/bullet/bullet_yellow.png', 3], [1000, './img/bullet/bullet_green.png', 0.2], [900, './img/bullet/bullet_blue.png', 1]];
-const gunConfigs = [[__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfigs[0], 350, 20, 2000], [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfigs[1], 450, 20, 2000], [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfigs[2], 550, 20, 2000]];
+const bulletConfigs = [[1100, './img/bullet/bullet_yellow.png', 3], [1000, './img/bullet/bullet_green.png', 0.2], [1500, './img/bullet/bullet_blue.png', 0.8]];
+const gunConfigs = [[__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfigs[0], 350, 10, 5500], [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfigs[1], 250, 30, 1500], [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfigs[2], 150, 40, 3500]];
 const weaponImages = [];
 let isGameStarted = false;
 let isGameOver = false;
 let isStoped = false;
+let isUltReady = false;
 let creatureManager;
 let bulletManger;
 let weaponManager;
@@ -638,7 +654,10 @@ document.addEventListener('keydown', function (e) {
         requestAnimationFrame(redraw);
         return;
     }
-
+    if (e.keyCode == 81 && isUltReady) {
+        killEmAll();
+        isUltReady = false;
+    }
     __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["c" /* keyState */][e.keyCode || e.which] = true;
 }, true);
 
@@ -650,7 +669,7 @@ const checkBulletsCollisions = function () {
     for (let j = 0; j < creatureManager.length; j++) {
         for (let i = 0; i < bulletManger.length; i++) {
             if (creatureManager[j].x - bulletManger[i].x < 0 && creatureManager[j].x - bulletManger[i].x > -120 && creatureManager[j].y - bulletManger[i].y < 0 && creatureManager[j].y - bulletManger[i].y > -100 && bulletManger[i].x < 1480) {
-                if (creatureManager[j] instanceof __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["a" /* Enemy */]) {
+                if (creatureManager[j] instanceof __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["a" /* Enemy */] && creatureManager[j].isDead == false) {
                     creatureManager[j].health -= bulletManger[i].damage;
                     if (player.currentGun == player.guns[2]) {
                         creatureManager[j].isFrozen = true;
@@ -709,6 +728,21 @@ const checkPlayerCollisions = function () {
     }
 };
 
+const checkScore = function () {
+    let curScore = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["b" /* getScore */])();
+    if (Math.floor(curScore % 500) == 0 && curScore != 0) {
+        isUltReady = true;
+    }
+};
+
+const killEmAll = function () {
+    for (let i = 0; i < creatureManager.length; i++) {
+        if (creatureManager[i] instanceof __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["a" /* Enemy */]) {
+            creatureManager[i].health = 0;
+        }
+    }
+};
+
 document.addEventListener('click', gameStart, false);
 
 function gameStart() {
@@ -736,12 +770,10 @@ const redraw = function () {
     ctx.drawImage(background, 0, 0);
 
     if (!isGameStarted) {
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["b" /* drawStartScreen */])(ctx);
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["c" /* drawStartScreen */])(ctx);
         requestAnimationFrame(redraw);
         return;
     }
-
-    __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["c" /* drawInterface */])(ctx, player, weaponImages);
 
     const deltaT = (Date.now() - time) / 1000;
     time = Date.now();
@@ -751,7 +783,8 @@ const redraw = function () {
     bulletManger.update(deltaT, ctx);
     weaponManager.update(deltaT);
     enemyGenerator.run();
-
+    __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["d" /* drawInterface */])(ctx, player, weaponImages, isUltReady);
+    checkScore();
     if (player.health < 1 && !isGameOver) {
         player.isDead = true;
         isGameOver = true;
@@ -760,12 +793,12 @@ const redraw = function () {
     }
 
     if (isGameOver) {
-        if (time - gameOverTime > 2000) __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["d" /* gameOver */])(ctx);
+        if (time - gameOverTime > 2000) __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["e" /* gameOver */])(ctx);
     } else {
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["e" /* drawWeaponIndicator */])(ctx, player);
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["f" /* drawWeaponIndicator */])(ctx, player);
 
         if (isStoped) {
-            __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["f" /* drawPause */])(ctx);
+            __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["g" /* drawPause */])(ctx);
             return;
         }
     }
