@@ -1,5 +1,5 @@
 import {keyState, Ammo, Player, Enemy} from './movingObject.js';
-import {drawStartScreen, drawInterface, increaseScore, drawWeaponIndicator, drawPause, gameOver, getScore} from './interface.js';
+import {drawStartScreen, drawInterface, increaseScore, resetScore, drawWeaponIndicator, drawPause, gameOver, getScore} from './interface.js';
 import {ObjectManager, BulletManager, CreatureManager} from './objectManager.js';
 import {EnemyGenerator, Gun} from './objectGenerator.js';
 
@@ -238,6 +238,7 @@ function gameStart() {
     creatureManager.push(player);
     isGameOver = false;
     isStoped = false;
+    resetScore();
     document.removeEventListener('click', gameStart, false);
     time = Date.now();
 }
