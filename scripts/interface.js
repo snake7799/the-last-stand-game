@@ -66,6 +66,10 @@ const getScore = function() {
 	return score;
 }
 
+const resetScore = function () {
+    score = 0;
+}
+
 const drawWeaponIndicator = function(context, object) {
 	context.beginPath();
 	context.moveTo(object.x + 35, object.y + 10);
@@ -109,4 +113,4 @@ const gameOver = function(context) {
 	context.restore();
 };
 
-export {drawStartScreen, drawInterface, increaseScore, drawWeaponIndicator, drawPause, gameOver, getScore};
+export {drawStartScreen, drawInterface, increaseScore, resetScore, drawWeaponIndicator, drawPause, gameOver, getScore};

@@ -51,10 +51,6 @@ class Gun extends ObjectGenerator {
 
     update() {
         if (this.readyToShoot) return;
-        if (this.currentBulletsAmount === 0 && this.weaponHandler.currentGun !== this) {
-            this.countdownStart = Date.now();
-            return;
-        }
 
         if (this.currentBulletsAmount === 0) {
             if (Date.now() - this.countdownStart > this.reloadingCooldown) {

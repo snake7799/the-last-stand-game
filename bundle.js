@@ -327,12 +327,13 @@ class Enemy extends Creature {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return drawStartScreen; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return drawInterface; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return drawStartScreen; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return drawInterface; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return increaseScore; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return drawWeaponIndicator; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return drawPause; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return gameOver; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return resetScore; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return drawWeaponIndicator; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return drawPause; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return gameOver; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return getScore; });
 const healthImage = new Image();
 healthImage.src = './img/interface/health.png';
@@ -400,6 +401,10 @@ const increaseScore = function () {
 
 const getScore = function () {
 	return score;
+};
+
+const resetScore = function () {
+	score = 0;
 };
 
 const drawWeaponIndicator = function (context, object) {
@@ -507,10 +512,6 @@ class Gun extends ObjectGenerator {
 
     update() {
         if (this.readyToShoot) return;
-        if (this.currentBulletsAmount === 0 && this.weaponHandler.currentGun !== this) {
-            this.countdownStart = Date.now();
-            return;
-        }
 
         if (this.currentBulletsAmount === 0) {
             if (Date.now() - this.countdownStart > this.reloadingCooldown) {
@@ -762,6 +763,7 @@ function gameStart() {
     creatureManager.push(player);
     isGameOver = false;
     isStoped = false;
+    __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["c" /* resetScore */])();
     document.removeEventListener('click', gameStart, false);
     time = Date.now();
 }
@@ -770,7 +772,7 @@ const redraw = function () {
     ctx.drawImage(background, 0, 0);
 
     if (!isGameStarted) {
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["c" /* drawStartScreen */])(ctx);
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["d" /* drawStartScreen */])(ctx);
         requestAnimationFrame(redraw);
         return;
     }
@@ -783,7 +785,7 @@ const redraw = function () {
     bulletManger.update(deltaT, ctx);
     weaponManager.update(deltaT);
     enemyGenerator.run();
-    __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["d" /* drawInterface */])(ctx, player, weaponImages, isUltReady);
+    __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["e" /* drawInterface */])(ctx, player, weaponImages, isUltReady);
     checkScore();
     if (player.health < 1 && !isGameOver) {
         player.isDead = true;
@@ -793,12 +795,12 @@ const redraw = function () {
     }
 
     if (isGameOver) {
-        if (time - gameOverTime > 2000) __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["e" /* gameOver */])(ctx);
+        if (time - gameOverTime > 2000) __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["f" /* gameOver */])(ctx);
     } else {
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["f" /* drawWeaponIndicator */])(ctx, player);
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["g" /* drawWeaponIndicator */])(ctx, player);
 
         if (isStoped) {
-            __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["g" /* drawPause */])(ctx);
+            __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["h" /* drawPause */])(ctx);
             return;
         }
     }
