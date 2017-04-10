@@ -9,20 +9,24 @@ const drawStartScreen = function(context) {
 	context.fillStyle = 'rgba(0, 0, 0, .8)';
 	context.fillRect(0, 0, 1481, 700);
 
-	context.drawImage(logo, 80, 70);
+	context.drawImage(logo, 60, 70);
 
 	context.font = '108px Agency FB';
 	context.fillStyle = '#ffffff';
-	context.fillText('The Last Stand', 920, 250);
+	context.fillText('THE LAST', 890, 210);
+	context.fillStyle = '#389b33';
+	context.fillText('STAND', 1212, 210);
+	context.fillStyle = '#ffffff';
 
 	context.font = '48px Agency FB';
-	context.fillText('Click to PLAY', 1060, 380);
+	context.fillText('Press ENTER to PLAY', 1000, 340);
 	context.save();
 
 	context.font = '36px Agency FB';
-	context.fillText('Use arrow keys to move', 1020, 470);
-	context.fillText('Use the Space key to shoot', 1005, 520);
-	context.fillText('Use the R key to force reload', 992, 570);
+	context.fillText('Use arrow keys to move', 1020, 430);
+	context.fillText('Use the Space key to shoot', 1005, 480);
+	context.fillText('Use the R key to force reload', 992, 530);
+	context.fillText('Use 1...3 keys to change bullets', 981, 580);
 
 	context.font = '26px Agency FB';
 	context.fillText('JSkills Game Team © 2017', 645, 680);
@@ -106,11 +110,11 @@ const gameOver = function(context) {
 
 	context.font = '36px Agency FB';
 	context.fillStyle = '#ffffff';
-	context.fillText('Click to TRY AGAIN', 645, 460);
+	context.fillText('Press ENTER to TRY AGAIN', 600, 460);
 
 	context.font = '26px Agency FB';
 	context.fillText('JSkills Game Team © 2017', 645, 680);
 	context.restore();
 };
 
-export {drawStartScreen, drawInterface, increaseScore, resetScore, drawWeaponIndicator, drawPause, gameOver, getScore};
+export {drawStartScreen, drawInterface, increaseScore, getScore, resetScore, drawWeaponIndicator, drawPause, gameOver};
