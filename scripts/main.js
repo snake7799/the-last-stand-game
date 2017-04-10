@@ -103,7 +103,7 @@ document.addEventListener('keydown', function(e) {
 	if ((e.keyCode == 13 && !isGameStarted) || (e.keyCode == 13 && isGameOver)) {
 		gameStart();
 		return;
-	} 
+	}
 	if (e.keyCode == 27 && isStoped == false) {
 		isStoped = true;
 		return;
@@ -289,10 +289,12 @@ const redraw = function() {
     weaponImages.push(new Image());
     weaponImages.push(new Image());
     weaponImages.push(new Image());
+    weaponImages.push(new Image());
     weaponImages[0].src = './img/interface/default.png';
     weaponImages[1].src = './img/interface/basic.jpg';
     weaponImages[2].src = './img/interface/poison.jpg';
     weaponImages[3].src = './img/interface/frost.jpg';
-	
+    weaponImages[4].src = './img/interface/ult.jpg';
+
     requestAnimationFrame(redraw);
 }());
