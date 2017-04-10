@@ -1,5 +1,5 @@
 import {keyState, Ammo, Player, Enemy} from './movingObject.js';
-import {drawStartScreen, drawInterface, increaseScore, resetScore, drawWeaponIndicator, drawPause, gameOver, getScore} from './interface.js';
+import {drawStartScreen, drawInterface, increaseScore, getScore, resetScore, drawWeaponIndicator, drawPause, gameOver} from './interface.js';
 import {ObjectManager, BulletManager, CreatureManager} from './objectManager.js';
 import {EnemyGenerator, Gun} from './objectGenerator.js';
 
@@ -100,25 +100,29 @@ let time;
 let gameOverTime;
 
 document.addEventListener('keydown', function(e) {
-    if (e.keyCode == 27 && isStoped == false) {
-        isStoped = true;
-        return;
-    }
-    if (e.keyCode == 27 && isStoped != false) {
-        isStoped = false;
-        time = Date.now();
-        requestAnimationFrame(redraw);
-        return;
-    }
-    if (e.keyCode == 81 && isUltReady) {
-        killEmAll();
-        isUltReady = false;
-    }
-    keyState[e.keyCode || e.which] = true;
+	if ((e.keyCode == 13 && !isGameStarted) || (e.keyCode == 13 && isGameOver)) {
+		gameStart();
+		return;
+	} 
+	if (e.keyCode == 27 && isStoped == false) {
+		isStoped = true;
+		return;
+	}
+	if (e.keyCode == 27 && isStoped != false) {
+		isStoped = false;
+		time = Date.now();
+		requestAnimationFrame(redraw);
+		return;
+	}
+	if (e.keyCode == 81 && isUltReady) {
+		killEmAll();
+		isUltReady = false;
+	}
+	keyState[e.keyCode || e.which] = true;
 }, true);
 
 document.addEventListener('keyup', function (e) {
-    keyState[e.keyCode || e.which] = false;
+	keyState[e.keyCode || e.which] = false;
 }, true);
 
 const checkBulletsCollisions = function() {
@@ -209,7 +213,7 @@ const checkScore = function() {
     if (Math.floor(curScore % 500) == 0 && curScore != 0) {
         isUltReady = true;
     }
-}
+};
 
 const killEmAll = function() {
     for (let i = 0; i < creatureManager.length; i++) {
@@ -217,14 +221,10 @@ const killEmAll = function() {
             creatureManager[i].health = 0;
         }
     }
-}
-
-document.addEventListener('click', gameStart, false);
+};
 
 function gameStart() {
-	if (!isGameStarted) {
-		isGameStarted = true;
-	}
+	if (!isGameStarted) isGameStarted = true;
 
     creatureManager = new CreatureManager();
     bulletManger = new BulletManager();
@@ -239,9 +239,8 @@ function gameStart() {
     isGameOver = false;
     isStoped = false;
     resetScore();
-    document.removeEventListener('click', gameStart, false);
     time = Date.now();
-}
+};
 
 const redraw = function() {
     ctx.drawImage(background, 0, 0);
@@ -266,14 +265,12 @@ const redraw = function() {
 		player.isDead = true;
         isGameOver = true;
         gameOverTime = Date.now();
-		document.addEventListener('click', gameStart, false);
 	}
 
     if (isGameOver) {
         if ((time - gameOverTime) > 2000) gameOver(ctx);
     } else {
         drawWeaponIndicator(ctx, player);
-
         if (isStoped) {
 		    drawPause(ctx);
 		    return;
@@ -296,6 +293,6 @@ const redraw = function() {
     weaponImages[1].src = './img/interface/basic.jpg';
     weaponImages[2].src = './img/interface/poison.jpg';
     weaponImages[3].src = './img/interface/frost.jpg';
-
+	
     requestAnimationFrame(redraw);
 }());

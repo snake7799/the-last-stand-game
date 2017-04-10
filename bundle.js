@@ -334,11 +334,11 @@ class Enemy extends Creature {
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return drawStartScreen; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return drawInterface; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return increaseScore; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return getScore; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return resetScore; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return drawWeaponIndicator; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return drawPause; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return gameOver; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return getScore; });
 const healthImage = new Image();
 healthImage.src = './img/interface/health.png';
 let score = 0;
@@ -350,20 +350,24 @@ const drawStartScreen = function (context) {
 	context.fillStyle = 'rgba(0, 0, 0, .8)';
 	context.fillRect(0, 0, 1481, 700);
 
-	context.drawImage(logo, 80, 70);
+	context.drawImage(logo, 60, 70);
 
 	context.font = '108px Agency FB';
 	context.fillStyle = '#ffffff';
-	context.fillText('The Last Stand', 920, 250);
+	context.fillText('THE LAST', 890, 210);
+	context.fillStyle = '#389b33';
+	context.fillText('STAND', 1212, 210);
+	context.fillStyle = '#ffffff';
 
 	context.font = '48px Agency FB';
-	context.fillText('Click to PLAY', 1060, 380);
+	context.fillText('Press ENTER to PLAY', 1000, 340);
 	context.save();
 
 	context.font = '36px Agency FB';
-	context.fillText('Use arrow keys to move', 1020, 470);
-	context.fillText('Use the Space key to shoot', 1005, 520);
-	context.fillText('Use the R key to force reload', 992, 570);
+	context.fillText('Use arrow keys to move', 1020, 430);
+	context.fillText('Use the Space key to shoot', 1005, 480);
+	context.fillText('Use the R key to force reload', 992, 530);
+	context.fillText('Use 1...3 keys to change bullets', 981, 580);
 
 	context.font = '26px Agency FB';
 	context.fillText('JSkills Game Team © 2017', 645, 680);
@@ -447,7 +451,7 @@ const gameOver = function (context) {
 
 	context.font = '36px Agency FB';
 	context.fillStyle = '#ffffff';
-	context.fillText('Click to TRY AGAIN', 645, 460);
+	context.fillText('Press ENTER to TRY AGAIN', 600, 460);
 
 	context.font = '26px Agency FB';
 	context.fillText('JSkills Game Team © 2017', 645, 680);
@@ -649,6 +653,10 @@ let time;
 let gameOverTime;
 
 document.addEventListener('keydown', function (e) {
+    if (e.keyCode == 13 && !isGameStarted || e.keyCode == 13 && isGameOver) {
+        gameStart();
+        return;
+    }
     if (e.keyCode == 27 && isStoped == false) {
         isStoped = true;
         return;
@@ -748,12 +756,8 @@ const killEmAll = function () {
     }
 };
 
-document.addEventListener('click', gameStart, false);
-
 function gameStart() {
-    if (!isGameStarted) {
-        isGameStarted = true;
-    }
+    if (!isGameStarted) isGameStarted = true;
 
     creatureManager = new __WEBPACK_IMPORTED_MODULE_2__objectManager_js__["a" /* CreatureManager */]();
     bulletManger = new __WEBPACK_IMPORTED_MODULE_2__objectManager_js__["b" /* BulletManager */]();
@@ -768,9 +772,8 @@ function gameStart() {
     isGameOver = false;
     isStoped = false;
     __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["c" /* resetScore */])();
-    document.removeEventListener('click', gameStart, false);
     time = Date.now();
-}
+};
 
 const redraw = function () {
     ctx.drawImage(background, 0, 0);
@@ -795,14 +798,12 @@ const redraw = function () {
         player.isDead = true;
         isGameOver = true;
         gameOverTime = Date.now();
-        document.addEventListener('click', gameStart, false);
     }
 
     if (isGameOver) {
         if (time - gameOverTime > 2000) __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["f" /* gameOver */])(ctx);
     } else {
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["g" /* drawWeaponIndicator */])(ctx, player);
-
         if (isStoped) {
             __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["h" /* drawPause */])(ctx);
             return;
