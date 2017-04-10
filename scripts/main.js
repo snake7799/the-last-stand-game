@@ -116,7 +116,7 @@ document.addEventListener('keydown', function(e) {
 	}
 	if (e.keyCode == 81 && isUltReady) {
 		killEmAll();
-		isUltReady = false;
+		window.setTimeout(() => isUltReady = false, 1500);
 	}
 	keyState[e.keyCode || e.which] = true;
 }, true);

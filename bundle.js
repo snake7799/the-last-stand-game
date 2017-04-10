@@ -667,7 +667,7 @@ document.addEventListener('keydown', function (e) {
     }
     if (e.keyCode == 81 && isUltReady) {
         killEmAll();
-        isUltReady = false;
+        window.setTimeout(() => isUltReady = false, 1500);
     }
     __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["c" /* keyState */][e.keyCode || e.which] = true;
 }, true);
