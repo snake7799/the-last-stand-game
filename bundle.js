@@ -381,18 +381,8 @@ const drawInterface = function (context, object, ammoImages, isUltReady) {
 		healthImagePos -= 50;
 	}
 
-	if (isUltReady) {
-		context.font = '32px Agency FB';
-		context.fillStyle = '#ffffff';
-		context.fillText('Press Q to activate KTA', 655, 600);
-	} else {
-		context.font = '32px Agency FB';
-		context.fillStyle = '#ffffff';
-		context.fillText('KTA is not ready', 655, 600);
-	}
-
 	let weaponImagePos = 40;
-	for (let i = 1; i < ammoImages.length; i++) {
+	for (let i = 1; i < ammoImages.length - 1; i++) {
 		context.drawImage(ammoImages[i], weaponImagePos, 30);
 		if (i == object.guns.indexOf(object.currentGun) + 1) {
 			context.drawImage(ammoImages[0], weaponImagePos - 3, 27);
@@ -400,6 +390,14 @@ const drawInterface = function (context, object, ammoImages, isUltReady) {
 		weaponImagePos += 90;
 	}
 
+	if (isUltReady) {
+		context.drawImage(ammoImages[4], weaponImagePos, 30);
+	} else {
+		context.fillStyle = 'rgba(0, 0, 0, 0.85)';
+		context.drawImage(ammoImages[4], weaponImagePos, 30);
+		context.fillRect(weaponImagePos, 30, 56, 56);
+	}
+	context.fillStyle = '#ffffff';
 	context.fillText(score, 735, 67);
 };
 
@@ -669,7 +667,7 @@ document.addEventListener('keydown', function (e) {
     }
     if (e.keyCode == 81 && isUltReady) {
         killEmAll();
-        isUltReady = false;
+        window.setTimeout(() => isUltReady = false, 1500);
     }
     __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["c" /* keyState */][e.keyCode || e.which] = true;
 }, true);
@@ -822,10 +820,12 @@ const redraw = function () {
     weaponImages.push(new Image());
     weaponImages.push(new Image());
     weaponImages.push(new Image());
+    weaponImages.push(new Image());
     weaponImages[0].src = './img/interface/default.png';
     weaponImages[1].src = './img/interface/basic.jpg';
     weaponImages[2].src = './img/interface/poison.jpg';
     weaponImages[3].src = './img/interface/frost.jpg';
+    weaponImages[4].src = './img/interface/ult.jpg';
 
     requestAnimationFrame(redraw);
 })();
