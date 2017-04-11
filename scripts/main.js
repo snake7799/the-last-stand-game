@@ -45,7 +45,7 @@ const playerConfig = [80,
     {
         run: 6,
         shoot: [17, 14, 12],
-        die: 2
+        die: 5
     }];
 const enemyConfig = [
     -70,
@@ -75,7 +75,7 @@ const enemyConfig = [
     'run',
     {
         run: 4,
-        die: 10,
+        die: 15,
         attack: 5
     },
     2000];
@@ -103,6 +103,7 @@ let gameOverMusic = new Audio();
 let ktaSound = new Audio();
 let mainMenuMusic = new Audio();
 let enemyAttackSound = new Audio();
+let playerDeath = new Audio();
 
 document.addEventListener('keydown', function(e) {
 	if (e.keyCode == 13 && !isGameStarted) {
@@ -286,7 +287,9 @@ const redraw = function() {
         backgroundMusic.pause();
         backgroundMusic.load();
         gameOverMusic.load();
+        gameOverMusic.loop = true;
         gameOverMusic.play();
+        playerDeath.play();
 		player.isDead = true;
         isGameOver = true;
         gameOverTime = Date.now();
@@ -332,6 +335,7 @@ const redraw = function() {
     ktaSound.src = './Sounds/Explosion.wav';
     mainMenuMusic.src = './Sounds/Main_Menu.ogg';
     enemyAttackSound.src = './Sounds/Enemy_attack.wav';
+    playerDeath.src = './Sounds/Player_death.wav';
     mainMenuMusic.play();
     requestAnimationFrame(redraw);
 }());

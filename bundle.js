@@ -264,7 +264,6 @@ class Enemy extends Creature {
         this.isPoisoned = false;
         this.poisonEffectInterval = 0;
         this.curPoisonEffectInterval = 0;
-        this.runSound.src = './Sounds/Enemy_movement.wav';
         this.scream = new Audio();
         this.scream.src = './Sounds/Enemy_scream.wav';
     }
@@ -642,7 +641,7 @@ const playerConfig = [80, 400, 125, 3, {
 }, 'stand', {
     run: 6,
     shoot: [17, 14, 12],
-    die: 2
+    die: 5
 }];
 const enemyConfig = [-70, 3, {
     run: ['./img/enemy/brown/run/enemy_run_1.png', './img/enemy/brown/run/enemy_run_2.png', './img/enemy/brown/run/enemy_run_3.png', './img/enemy/brown/run/enemy_run_4.png', './img/enemy/brown/run/enemy_run_5.png'],
@@ -650,7 +649,7 @@ const enemyConfig = [-70, 3, {
     attack: ['./img/enemy/brown/attack/enemy_attack_1.png', './img/enemy/brown/attack/enemy_attack_2.png', './img/enemy/brown/attack/enemy_attack_3.png', './img/enemy/brown/attack/enemy_attack_4.png', './img/enemy/brown/attack/enemy_attack_5.png']
 }, 'run', {
     run: 4,
-    die: 10,
+    die: 15,
     attack: 5
 }, 2000];
 const enemyGeneratorConfig = [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["a" /* Enemy */], enemyConfig, 1000];
@@ -673,6 +672,7 @@ let gameOverMusic = new Audio();
 let ktaSound = new Audio();
 let mainMenuMusic = new Audio();
 let enemyAttackSound = new Audio();
+let playerDeath = new Audio();
 
 document.addEventListener('keydown', function (e) {
     if (e.keyCode == 13 && !isGameStarted) {
@@ -836,7 +836,9 @@ const redraw = function () {
         backgroundMusic.pause();
         backgroundMusic.load();
         gameOverMusic.load();
+        gameOverMusic.loop = true;
         gameOverMusic.play();
+        playerDeath.play();
         player.isDead = true;
         isGameOver = true;
         gameOverTime = Date.now();
@@ -882,6 +884,7 @@ const redraw = function () {
     ktaSound.src = './Sounds/Explosion.wav';
     mainMenuMusic.src = './Sounds/Main_Menu.ogg';
     enemyAttackSound.src = './Sounds/Enemy_attack.wav';
+    playerDeath.src = './Sounds/Player_death.wav';
     mainMenuMusic.play();
     requestAnimationFrame(redraw);
 })();

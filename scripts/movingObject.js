@@ -197,7 +197,6 @@ class Enemy extends Creature {
         this.isPoisoned = false;
         this.poisonEffectInterval = 0;
         this.curPoisonEffectInterval = 0;
-        this.runSound.src = './Sounds/Enemy_movement.wav';
         this.scream = new Audio();
         this.scream.src = './Sounds/Enemy_scream.wav';
     }
