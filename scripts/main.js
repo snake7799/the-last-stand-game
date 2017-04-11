@@ -45,7 +45,7 @@ const playerConfig = [80,
     {
         run: 6,
         shoot: [17, 14, 12],
-        die: 5
+        die: 2
     }];
 const enemyConfig = [
     -70,
@@ -99,9 +99,14 @@ let enemyGenerator;
 let time;
 let gameOverTime;
 let backgroundMusic = new Audio();
+let gameOverMusic = new Audio();
+let ktaSound = new Audio();
+let mainMenuMusic = new Audio();
+let enemyAttackSound = new Audio();
 
 document.addEventListener('keydown', function(e) {
 	if (e.keyCode == 13 && !isGameStarted) {
+        mainMenuMusic.pause();
 		gameStart();
 		return;
 	}
@@ -109,6 +114,7 @@ document.addEventListener('keydown', function(e) {
         for (let i = 0; i < creatureManager.length; i++) {
             creatureManager[i].runSound.pause();
         }
+        gameOverMusic.pause();
         gameStart();
         return;
     }
@@ -125,6 +131,7 @@ document.addEventListener('keydown', function(e) {
 	}
 	if (e.keyCode == 81 && isUltReady) {
 		killEmAll();
+        ktaSound.play();
 		window.setTimeout(() => isUltReady = false, 1500);
 	}
 	keyState[e.keyCode || e.which] = true;
@@ -144,7 +151,6 @@ const checkBulletsCollisions = function() {
                     bulletManger[i].x < 1480) {
                 if (creatureManager[j] instanceof Enemy && creatureManager[j].isDead == false) {
                     creatureManager[j].health -= bulletManger[i].damage;
-                    creatureManager[j].scream.play();
                     if (player.currentGun == player.guns[2]) {
                         creatureManager[j].isFrozen = true;
                         creatureManager[j].frozenEffectInterval = Date.now();
@@ -158,8 +164,11 @@ const checkBulletsCollisions = function() {
             }
         }
         if (creatureManager[j].health <= 0) {
-            creatureManager[j].runSound.pause();
-            creatureManager[j].isDead = true;
+            if (creatureManager[j] instanceof Enemy) {
+                creatureManager[j].scream.play();
+                creatureManager[j].runSound.pause();
+                creatureManager[j].isDead = true;
+            }
         }
         if(creatureManager[j].isCompletelyDead == true){
             creatureManager.splice(j, 1);
@@ -213,6 +222,7 @@ const checkPlayerCollisions = function() {
             }
         }
         if (creatureManager[i].isAttackComplete) {
+            enemyAttackSound.play();
             creatureManager[i].isAttackComplete = false;
             if (player.canMoveForward == false) player.health -= 1;
         }
@@ -256,7 +266,7 @@ function gameStart() {
 const redraw = function() {
     ctx.drawImage(background, 0, 0);
 
-	if (!isGameStarted) {
+    if (!isGameStarted) {
 		drawStartScreen(ctx);
 		requestAnimationFrame(redraw);
 		return;
@@ -273,13 +283,21 @@ const redraw = function() {
 	drawInterface(ctx, player, weaponImages, isUltReady);
     checkScore();
 	if (player.health < 1 && !isGameOver) {
+        backgroundMusic.pause();
+        backgroundMusic.load();
+        gameOverMusic.load();
+        gameOverMusic.play();
 		player.isDead = true;
         isGameOver = true;
         gameOverTime = Date.now();
 	}
 
     if (isGameOver) {
-        if ((time - gameOverTime) > 2000) gameOver(ctx);
+        if ((time - gameOverTime) > 5000){
+            gameOver(ctx);
+            requestAnimationFrame(redraw);
+            return;
+        }
     } else {
         drawWeaponIndicator(ctx, player);
         if (isStoped) {
@@ -291,15 +309,16 @@ const redraw = function() {
 		    return;
 	    }
     }
-    backgroundMusic.play();
+    if (!isGameOver) backgroundMusic.play();
     checkBulletsCollisions();
     requestAnimationFrame(redraw);
 };
-    backgroundMusic.src = './Sounds/Background_Music.mp3';
+
 (function() {
 	background.src = './img/background.png';
     ctx.lineWidth = 5;
-
+    backgroundMusic.src = './Sounds/Background_Music.mp3';
+    gameOverMusic.src = './Sounds/Game_Over.mp3';
     weaponImages.push(new Image());
     weaponImages.push(new Image());
     weaponImages.push(new Image());
@@ -310,6 +329,9 @@ const redraw = function() {
     weaponImages[2].src = './img/interface/poison.jpg';
     weaponImages[3].src = './img/interface/frost.jpg';
     weaponImages[4].src = './img/interface/ult.jpg';
-
+    ktaSound.src = './Sounds/Explosion.wav';
+    mainMenuMusic.src = './Sounds/Main_Menu.ogg';
+    enemyAttackSound.src = './Sounds/Enemy_attack.wav';
+    mainMenuMusic.play();
     requestAnimationFrame(redraw);
 }());

@@ -642,7 +642,7 @@ const playerConfig = [80, 400, 125, 3, {
 }, 'stand', {
     run: 6,
     shoot: [17, 14, 12],
-    die: 5
+    die: 2
 }];
 const enemyConfig = [-70, 3, {
     run: ['./img/enemy/brown/run/enemy_run_1.png', './img/enemy/brown/run/enemy_run_2.png', './img/enemy/brown/run/enemy_run_3.png', './img/enemy/brown/run/enemy_run_4.png', './img/enemy/brown/run/enemy_run_5.png'],
@@ -669,9 +669,14 @@ let enemyGenerator;
 let time;
 let gameOverTime;
 let backgroundMusic = new Audio();
+let gameOverMusic = new Audio();
+let ktaSound = new Audio();
+let mainMenuMusic = new Audio();
+let enemyAttackSound = new Audio();
 
 document.addEventListener('keydown', function (e) {
     if (e.keyCode == 13 && !isGameStarted) {
+        mainMenuMusic.pause();
         gameStart();
         return;
     }
@@ -679,6 +684,7 @@ document.addEventListener('keydown', function (e) {
         for (let i = 0; i < creatureManager.length; i++) {
             creatureManager[i].runSound.pause();
         }
+        gameOverMusic.pause();
         gameStart();
         return;
     }
@@ -695,6 +701,7 @@ document.addEventListener('keydown', function (e) {
     }
     if (e.keyCode == 81 && isUltReady) {
         killEmAll();
+        ktaSound.play();
         window.setTimeout(() => isUltReady = false, 1500);
     }
     __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["c" /* keyState */][e.keyCode || e.which] = true;
@@ -710,7 +717,6 @@ const checkBulletsCollisions = function () {
             if (creatureManager[j].x - bulletManger[i].x < 0 && creatureManager[j].x - bulletManger[i].x > -120 && creatureManager[j].y - bulletManger[i].y < 0 && creatureManager[j].y - bulletManger[i].y > -100 && bulletManger[i].x < 1480) {
                 if (creatureManager[j] instanceof __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["a" /* Enemy */] && creatureManager[j].isDead == false) {
                     creatureManager[j].health -= bulletManger[i].damage;
-                    creatureManager[j].scream.play();
                     if (player.currentGun == player.guns[2]) {
                         creatureManager[j].isFrozen = true;
                         creatureManager[j].frozenEffectInterval = Date.now();
@@ -724,8 +730,11 @@ const checkBulletsCollisions = function () {
             }
         }
         if (creatureManager[j].health <= 0) {
-            creatureManager[j].runSound.pause();
-            creatureManager[j].isDead = true;
+            if (creatureManager[j] instanceof __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["a" /* Enemy */]) {
+                creatureManager[j].scream.play();
+                creatureManager[j].runSound.pause();
+                creatureManager[j].isDead = true;
+            }
         }
         if (creatureManager[j].isCompletelyDead == true) {
             creatureManager.splice(j, 1);
@@ -763,6 +772,7 @@ const checkPlayerCollisions = function () {
             }
         }
         if (creatureManager[i].isAttackComplete) {
+            enemyAttackSound.play();
             creatureManager[i].isAttackComplete = false;
             if (player.canMoveForward == false) player.health -= 1;
         }
@@ -823,13 +833,21 @@ const redraw = function () {
     __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["e" /* drawInterface */])(ctx, player, weaponImages, isUltReady);
     checkScore();
     if (player.health < 1 && !isGameOver) {
+        backgroundMusic.pause();
+        backgroundMusic.load();
+        gameOverMusic.load();
+        gameOverMusic.play();
         player.isDead = true;
         isGameOver = true;
         gameOverTime = Date.now();
     }
 
     if (isGameOver) {
-        if (time - gameOverTime > 2000) __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["f" /* gameOver */])(ctx);
+        if (time - gameOverTime > 5000) {
+            __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["f" /* gameOver */])(ctx);
+            requestAnimationFrame(redraw);
+            return;
+        }
     } else {
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["g" /* drawWeaponIndicator */])(ctx, player);
         if (isStoped) {
@@ -841,7 +859,7 @@ const redraw = function () {
             return;
         }
     }
-    backgroundMusic.play();
+    if (!isGameOver) backgroundMusic.play();
     checkBulletsCollisions();
     requestAnimationFrame(redraw);
 };
@@ -850,6 +868,7 @@ const redraw = function () {
     background.src = './img/background.png';
     ctx.lineWidth = 5;
     backgroundMusic.src = './Sounds/Background_Music.mp3';
+    gameOverMusic.src = './Sounds/Game_Over.mp3';
     weaponImages.push(new Image());
     weaponImages.push(new Image());
     weaponImages.push(new Image());
@@ -860,7 +879,10 @@ const redraw = function () {
     weaponImages[2].src = './img/interface/poison.jpg';
     weaponImages[3].src = './img/interface/frost.jpg';
     weaponImages[4].src = './img/interface/ult.jpg';
-
+    ktaSound.src = './Sounds/Explosion.wav';
+    mainMenuMusic.src = './Sounds/Main_Menu.ogg';
+    enemyAttackSound.src = './Sounds/Enemy_attack.wav';
+    mainMenuMusic.play();
     requestAnimationFrame(redraw);
 })();
 
