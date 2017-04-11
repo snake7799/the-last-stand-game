@@ -58,6 +58,7 @@ class Creature extends MovingObject {
         this.frameInterval = this.frameIntervals[initFrames];
         this.currentFrame = 0;
         this.isDead = false;
+        this.runSound = new Audio();
     }
 
     frameChange(isForward, deltaT) {
@@ -92,11 +93,14 @@ class Creature extends MovingObject {
         if (this.currentFrames !== this.frameSets.run) {
             this.changeState('run');
         }
-        
+
         this.frameChange(speedX >= 0, deltaT);
 
         this.x += speedX * deltaT;
         this.y += speedY * deltaT;
+        if (this.runSound.src != '') {
+            this.runSound.play();
+        }
     }
 }
 
@@ -109,6 +113,14 @@ class Player extends Creature {
         this.canMoveBackward = true;
         this.canMoveUp = true;
         this.canMoveDown = true;
+        this.shootSound = [];
+        this.shootSound.push(new Audio());
+        this.shootSound.push(new Audio());
+        this.shootSound.push(new Audio());
+        this.shootSound[0].src = './Sounds/Weapon_1.wav';
+        this.shootSound[1].src = './Sounds/Weapon_2.wav';
+        this.shootSound[2].src = './Sounds/Weapon_3.wav';
+        this.runSound.src = './Sounds/Footstep.wav';
     }
 
     update(deltaT, context) {
@@ -145,7 +157,9 @@ class Player extends Creature {
             this.frameChange(true, deltaT);
         } else if (this.currentFrames !== this.frameSets.stand) this.stand();
 
-        if (keyState[32]) this.shoot();
+        if (keyState[32]){
+            this.shoot();
+        }
         else if (keyState[49]) this.changeWeapon(0);
         else if (keyState[50]) this.changeWeapon(1);
         else if (keyState[51]) this.changeWeapon(2);
@@ -166,10 +180,12 @@ class Player extends Creature {
             this.currentFrame = 0;
         }
         if (this.currentGun.readyToShoot) {
+            this.shootSound[this.guns.indexOf(this.currentGun)].load();
             this.currentGun.shoot(this.x + 105, this.y + 49);
             if (this.currentFrames === this.frameSets.shoot) {
                 this.currentFrame = 0;
             }
+            this.shootSound[this.guns.indexOf(this.currentGun)].play();
         }
     }
 
@@ -203,6 +219,8 @@ class Enemy extends Creature {
         this.isPoisoned = false;
         this.poisonEffectInterval = 0;
         this.curPoisonEffectInterval = 0;
+        this.scream = new Audio();
+        this.scream.src = './Sounds/Enemy_scream.wav';
     }
 
     update(deltaT, context) {
@@ -218,7 +236,7 @@ class Enemy extends Creature {
     run(speedX, speedY, deltaT) {
         if (this.isPoisoned) deltaT /= 2;
         if (this.isFrozen) deltaT /= 3;
-        
+      
         super.run(speedX, speedY, deltaT);
     }
 
@@ -282,5 +300,6 @@ class Enemy extends Creature {
         }
     }
 }
+
 
 export { keyState, Ammo, PoisonedBullet, SlowingBullet, Player, Enemy };
