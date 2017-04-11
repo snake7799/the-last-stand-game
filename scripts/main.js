@@ -1,4 +1,4 @@
-import {keyState, Ammo, Player, Enemy} from './movingObject.js';
+import {keyState, Ammo, PoisonedBullet, SlowingBullet, Player, Enemy} from './movingObject.js';
 import {drawStartScreen, drawInterface, increaseScore, getScore, resetScore, drawWeaponIndicator, drawPause, gameOver} from './interface.js';
 import {ObjectManager, BulletManager, CreatureManager} from './objectManager.js';
 import {EnemyGenerator, Gun} from './objectGenerator.js';
@@ -78,14 +78,14 @@ const enemyConfig = [
         die: 10,
         attack: 5
     },
-    2000];
+    500];
 const enemyGeneratorConfig = [Enemy, enemyConfig, 1000];
 const bulletConfigs = [[1100, './img/bullet/bullet_yellow.png', 3],
                        [1000, './img/bullet/bullet_green.png', 0.2],
                        [1500, './img/bullet/bullet_blue.png', 0.8]];
 const gunConfigs = [[Ammo, bulletConfigs[0], 350, 10, 5500],
-                    [Ammo, bulletConfigs[1], 250, 30, 1500],
-                    [Ammo, bulletConfigs[2], 150, 40, 3500]];
+                    [PoisonedBullet, bulletConfigs[1], 250, 30, 1500],
+                    [SlowingBullet, bulletConfigs[2], 150, 40, 3500]];
 const weaponImages = [];
 let isGameStarted = false;
 let isGameOver = false;
@@ -98,6 +98,7 @@ let player;
 let enemyGenerator;
 let time;
 let gameOverTime;
+let lastUltUseScore;
 
 document.addEventListener('keydown', function(e) {
 	if ((e.keyCode == 13 && !isGameStarted) || (e.keyCode == 13 && isGameOver)) {
@@ -116,7 +117,10 @@ document.addEventListener('keydown', function(e) {
 	}
 	if (e.keyCode == 81 && isUltReady) {
 		killEmAll();
-		window.setTimeout(() => isUltReady = false, 1500);
+		window.setTimeout(() => {
+            isUltReady = false;
+            lastUltUseScore = getScore();
+        }, 1100);
 	}
 	keyState[e.keyCode || e.which] = true;
 }, true);
@@ -134,15 +138,7 @@ const checkBulletsCollisions = function() {
                     creatureManager[j].y - bulletManger[i].y > -100) &&
                     bulletManger[i].x < 1480) {
                 if (creatureManager[j] instanceof Enemy && creatureManager[j].isDead == false) {
-                    creatureManager[j].health -= bulletManger[i].damage;
-                    if (player.currentGun == player.guns[2]) {
-                        creatureManager[j].isFrozen = true;
-                        creatureManager[j].frozenEffectInterval = Date.now();
-                    }
-                    if (player.currentGun == player.guns[1]) {
-                        creatureManager[j].isPoisoned = true;
-                        creatureManager[j].poisonEffectInterval = Date.now();
-                    }
+                    bulletManger[i].affect(creatureManager[j]);
                     bulletManger.splice(i, 1);
                 }
             }
@@ -209,10 +205,7 @@ const checkPlayerCollisions = function() {
 };
 
 const checkScore = function() {
-    let curScore = getScore();
-    if (Math.floor(curScore % 500) == 0 && curScore != 0) {
-        isUltReady = true;
-    }
+    if (!isUltReady && getScore() - lastUltUseScore >= 500) isUltReady = true;
 };
 
 const killEmAll = function() {
@@ -239,6 +232,7 @@ function gameStart() {
     isGameOver = false;
     isStoped = false;
     resetScore();
+    lastUltUseScore = 0;
     time = Date.now();
 };
 

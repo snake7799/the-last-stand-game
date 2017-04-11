@@ -24,6 +24,28 @@ class Ammo extends MovingObject {
         this.draw(context);
         this.x += this.speed * deltaT;
     }
+
+    affect(creature) {
+        creature.health -= this.damage;
+    }
+}
+
+class PoisonedBullet extends Ammo {
+    affect(creature) {
+        creature.isPoisoned = true;
+        creature.poisonEffectInterval = Date.now();
+
+        super.affect(creature);
+    }
+}
+
+class SlowingBullet extends Ammo {
+    affect(creature) {
+        creature.isFrozen = true;
+        creature.frozenEffectInterval = Date.now();
+
+        super.affect(creature);
+    }
 }
 
 class Creature extends MovingObject {
@@ -190,26 +212,12 @@ class Enemy extends Creature {
         else if (this.isCollided) this.attack(deltaT);
         else this.run(this.speed, 0, deltaT);
 
-        this.effectsFrameChange();
+        this.handleEffects(deltaT);
     }
 
     run(speedX, speedY, deltaT) {
-        if (this.isPoisoned){
-            this.health -= 1.5 * deltaT;
-            deltaT /= 2;
-            this.curPoisonEffectInterval = Date.now();
-        }
-        if (this.isFrozen){
-            deltaT /= 3;
-            this.curFrozenEffectInterval = Date.now();
-        }
-        
-        if (this.curFrozenEffectInterval - this.frozenEffectInterval > 3000) {
-            this.isFrozen = false;
-        }
-        if (this.curPoisonEffectInterval - this.poisonEffectInterval > 1000) {
-            this.isPoisoned = false;
-        }
+        if (this.isPoisoned) deltaT /= 2;
+        if (this.isFrozen) deltaT /= 3;
         
         super.run(speedX, speedY, deltaT);
     }
@@ -246,17 +254,33 @@ class Enemy extends Creature {
         }
     }
 
-    effectsFrameChange() {
+    handleEffects(deltaT) {
+        if (this.isPoisoned) {
+            if (!this.isFrozen) {
+                const tempImg = this.currentFrames[Math.floor(this.currentFrame)].split('/');
+                tempImg[3] = 'green';
+                this.image.src = tempImg.join('/');
+            }
+
+            this.health -= 1.5 * deltaT;
+            this.curPoisonEffectInterval = Date.now();
+
+            if (this.curPoisonEffectInterval - this.poisonEffectInterval > 1000) {
+                this.isPoisoned = false;
+            }
+        }
         if (this.isFrozen) {
             const tempImg = this.currentFrames[Math.floor(this.currentFrame)].split('/');
             tempImg[3] = 'blue';
             this.image.src = tempImg.join('/');
-        } else if (this.isPoisoned) {
-            const tempImg = this.currentFrames[Math.floor(this.currentFrame)].split('/');
-            tempImg[3] = 'green';
-            this.image.src = tempImg.join('/');
+
+            this.curFrozenEffectInterval = Date.now();
+
+            if (this.curFrozenEffectInterval - this.frozenEffectInterval > 3000) {
+                this.isFrozen = false;
+            }
         }
     }
 }
 
-export { keyState, Ammo, Player, Enemy };
+export { keyState, Ammo, PoisonedBullet, SlowingBullet, Player, Enemy };

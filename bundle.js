@@ -71,9 +71,11 @@
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return keyState; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return keyState; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return Ammo; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return Player; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return PoisonedBullet; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return SlowingBullet; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return Player; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Enemy; });
 const keyState = {};
 
@@ -100,6 +102,28 @@ class Ammo extends MovingObject {
     update(deltaT, context) {
         this.draw(context);
         this.x += this.speed * deltaT;
+    }
+
+    affect(creature) {
+        creature.health -= this.damage;
+    }
+}
+
+class PoisonedBullet extends Ammo {
+    affect(creature) {
+        creature.isPoisoned = true;
+        creature.poisonEffectInterval = Date.now();
+
+        super.affect(creature);
+    }
+}
+
+class SlowingBullet extends Ammo {
+    affect(creature) {
+        creature.isFrozen = true;
+        creature.frozenEffectInterval = Date.now();
+
+        super.affect(creature);
     }
 }
 
@@ -255,26 +279,12 @@ class Enemy extends Creature {
 
         if (this.isDead) this.death(deltaT);else if (this.isCollided) this.attack(deltaT);else this.run(this.speed, 0, deltaT);
 
-        this.effectsFrameChange();
+        this.handleEffects(deltaT);
     }
 
     run(speedX, speedY, deltaT) {
-        if (this.isPoisoned) {
-            this.health -= 1.5 * deltaT;
-            deltaT /= 2;
-            this.curPoisonEffectInterval = Date.now();
-        }
-        if (this.isFrozen) {
-            deltaT /= 3;
-            this.curFrozenEffectInterval = Date.now();
-        }
-
-        if (this.curFrozenEffectInterval - this.frozenEffectInterval > 3000) {
-            this.isFrozen = false;
-        }
-        if (this.curPoisonEffectInterval - this.poisonEffectInterval > 1000) {
-            this.isPoisoned = false;
-        }
+        if (this.isPoisoned) deltaT /= 2;
+        if (this.isFrozen) deltaT /= 3;
 
         super.run(speedX, speedY, deltaT);
     }
@@ -311,15 +321,31 @@ class Enemy extends Creature {
         }
     }
 
-    effectsFrameChange() {
+    handleEffects(deltaT) {
+        if (this.isPoisoned) {
+            if (!this.isFrozen) {
+                const tempImg = this.currentFrames[Math.floor(this.currentFrame)].split('/');
+                tempImg[3] = 'green';
+                this.image.src = tempImg.join('/');
+            }
+
+            this.health -= 1.5 * deltaT;
+            this.curPoisonEffectInterval = Date.now();
+
+            if (this.curPoisonEffectInterval - this.poisonEffectInterval > 1000) {
+                this.isPoisoned = false;
+            }
+        }
         if (this.isFrozen) {
             const tempImg = this.currentFrames[Math.floor(this.currentFrame)].split('/');
             tempImg[3] = 'blue';
             this.image.src = tempImg.join('/');
-        } else if (this.isPoisoned) {
-            const tempImg = this.currentFrames[Math.floor(this.currentFrame)].split('/');
-            tempImg[3] = 'green';
-            this.image.src = tempImg.join('/');
+
+            this.curFrozenEffectInterval = Date.now();
+
+            if (this.curFrozenEffectInterval - this.frozenEffectInterval > 3000) {
+                this.isFrozen = false;
+            }
         }
     }
 }
@@ -333,8 +359,8 @@ class Enemy extends Creature {
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return drawStartScreen; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return drawInterface; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return increaseScore; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return getScore; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return increaseScore; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return getScore; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return resetScore; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return drawWeaponIndicator; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return drawPause; });
@@ -582,7 +608,7 @@ class CreatureManager extends ObjectManager {
                 this[i].update(deltaT, context);
             } else {
                 this.forEach((item, i, arr) => {
-                    if (item instanceof __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["d" /* Player */]) arr[i].health -= 1;
+                    if (item instanceof __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["f" /* Player */]) arr[i].health -= 1;
                 });
                 this.splice(i, 1);
                 i -= 1;
@@ -633,10 +659,10 @@ const enemyConfig = [-70, 3, {
     run: 4,
     die: 10,
     attack: 5
-}, 2000];
+}, 500];
 const enemyGeneratorConfig = [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["a" /* Enemy */], enemyConfig, 1000];
 const bulletConfigs = [[1100, './img/bullet/bullet_yellow.png', 3], [1000, './img/bullet/bullet_green.png', 0.2], [1500, './img/bullet/bullet_blue.png', 0.8]];
-const gunConfigs = [[__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfigs[0], 350, 10, 5500], [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfigs[1], 250, 30, 1500], [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfigs[2], 150, 40, 3500]];
+const gunConfigs = [[__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["b" /* Ammo */], bulletConfigs[0], 350, 10, 5500], [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["c" /* PoisonedBullet */], bulletConfigs[1], 250, 30, 1500], [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["d" /* SlowingBullet */], bulletConfigs[2], 150, 40, 3500]];
 const weaponImages = [];
 let isGameStarted = false;
 let isGameOver = false;
@@ -649,6 +675,7 @@ let player;
 let enemyGenerator;
 let time;
 let gameOverTime;
+let lastUltUseScore;
 
 document.addEventListener('keydown', function (e) {
     if (e.keyCode == 13 && !isGameStarted || e.keyCode == 13 && isGameOver) {
@@ -667,13 +694,16 @@ document.addEventListener('keydown', function (e) {
     }
     if (e.keyCode == 81 && isUltReady) {
         killEmAll();
-        window.setTimeout(() => isUltReady = false, 1500);
+        window.setTimeout(() => {
+            isUltReady = false;
+            lastUltUseScore = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["a" /* getScore */])();
+        }, 1100);
     }
-    __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["c" /* keyState */][e.keyCode || e.which] = true;
+    __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["e" /* keyState */][e.keyCode || e.which] = true;
 }, true);
 
 document.addEventListener('keyup', function (e) {
-    __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["c" /* keyState */][e.keyCode || e.which] = false;
+    __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["e" /* keyState */][e.keyCode || e.which] = false;
 }, true);
 
 const checkBulletsCollisions = function () {
@@ -681,15 +711,7 @@ const checkBulletsCollisions = function () {
         for (let i = 0; i < bulletManger.length; i++) {
             if (creatureManager[j].x - bulletManger[i].x < 0 && creatureManager[j].x - bulletManger[i].x > -120 && creatureManager[j].y - bulletManger[i].y < 0 && creatureManager[j].y - bulletManger[i].y > -100 && bulletManger[i].x < 1480) {
                 if (creatureManager[j] instanceof __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["a" /* Enemy */] && creatureManager[j].isDead == false) {
-                    creatureManager[j].health -= bulletManger[i].damage;
-                    if (player.currentGun == player.guns[2]) {
-                        creatureManager[j].isFrozen = true;
-                        creatureManager[j].frozenEffectInterval = Date.now();
-                    }
-                    if (player.currentGun == player.guns[1]) {
-                        creatureManager[j].isPoisoned = true;
-                        creatureManager[j].poisonEffectInterval = Date.now();
-                    }
+                    bulletManger[i].affect(creatureManager[j]);
                     bulletManger.splice(i, 1);
                 }
             }
@@ -699,7 +721,7 @@ const checkBulletsCollisions = function () {
         }
         if (creatureManager[j].isCompletelyDead == true) {
             creatureManager.splice(j, 1);
-            __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["a" /* increaseScore */])();
+            __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["b" /* increaseScore */])();
         }
     }
 };
@@ -740,10 +762,7 @@ const checkPlayerCollisions = function () {
 };
 
 const checkScore = function () {
-    let curScore = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["b" /* getScore */])();
-    if (Math.floor(curScore % 500) == 0 && curScore != 0) {
-        isUltReady = true;
-    }
+    if (!isUltReady && __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["a" /* getScore */])() - lastUltUseScore >= 500) isUltReady = true;
 };
 
 const killEmAll = function () {
@@ -760,7 +779,7 @@ function gameStart() {
     creatureManager = new __WEBPACK_IMPORTED_MODULE_2__objectManager_js__["a" /* CreatureManager */]();
     bulletManger = new __WEBPACK_IMPORTED_MODULE_2__objectManager_js__["b" /* BulletManager */]();
     weaponManager = new __WEBPACK_IMPORTED_MODULE_2__objectManager_js__["c" /* ObjectManager */]();
-    player = new __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["d" /* Player */](...playerConfig, weaponManager);
+    player = new __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["f" /* Player */](...playerConfig, weaponManager);
     enemyGenerator = new __WEBPACK_IMPORTED_MODULE_3__objectGenerator_js__["a" /* EnemyGenerator */](creatureManager, ...enemyGeneratorConfig);
     weaponManager.push(new __WEBPACK_IMPORTED_MODULE_3__objectGenerator_js__["b" /* Gun */](player, bulletManger, ...gunConfigs[0]));
     weaponManager.push(new __WEBPACK_IMPORTED_MODULE_3__objectGenerator_js__["b" /* Gun */](player, bulletManger, ...gunConfigs[1]));
@@ -770,6 +789,7 @@ function gameStart() {
     isGameOver = false;
     isStoped = false;
     __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["c" /* resetScore */])();
+    lastUltUseScore = 0;
     time = Date.now();
 };
 
