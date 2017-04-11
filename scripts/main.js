@@ -98,14 +98,23 @@ let player;
 let enemyGenerator;
 let time;
 let gameOverTime;
+let backgroundMusic = new Audio();
 
 document.addEventListener('keydown', function(e) {
-	if ((e.keyCode == 13 && !isGameStarted) || (e.keyCode == 13 && isGameOver)) {
+	if (e.keyCode == 13 && !isGameStarted) {
 		gameStart();
 		return;
 	}
+    if (e.keyCode == 13 && isGameOver) {
+        for (let i = 0; i < creatureManager.length; i++) {
+            creatureManager[i].runSound.pause();
+        }
+        gameStart();
+        return;
+    }
 	if (e.keyCode == 27 && isStoped == false) {
 		isStoped = true;
+        backgroundMusic.pause();
 		return;
 	}
 	if (e.keyCode == 27 && isStoped != false) {
@@ -135,6 +144,7 @@ const checkBulletsCollisions = function() {
                     bulletManger[i].x < 1480) {
                 if (creatureManager[j] instanceof Enemy && creatureManager[j].isDead == false) {
                     creatureManager[j].health -= bulletManger[i].damage;
+                    creatureManager[j].scream.play();
                     if (player.currentGun == player.guns[2]) {
                         creatureManager[j].isFrozen = true;
                         creatureManager[j].frozenEffectInterval = Date.now();
@@ -148,6 +158,7 @@ const checkBulletsCollisions = function() {
             }
         }
         if (creatureManager[j].health <= 0) {
+            creatureManager[j].runSound.pause();
             creatureManager[j].isDead = true;
         }
         if(creatureManager[j].isCompletelyDead == true){
@@ -273,14 +284,18 @@ const redraw = function() {
         drawWeaponIndicator(ctx, player);
         if (isStoped) {
 		    drawPause(ctx);
+            backgroundMusic.pause();
+            for (let i = 0; i < creatureManager.length; i++) {
+                creatureManager[i].runSound.pause();
+            }
 		    return;
 	    }
     }
-
+    backgroundMusic.play();
     checkBulletsCollisions();
     requestAnimationFrame(redraw);
 };
-
+    backgroundMusic.src = './Sounds/Background_Music.mp3';
 (function() {
 	background.src = './img/background.png';
     ctx.lineWidth = 5;
