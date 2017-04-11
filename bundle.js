@@ -113,6 +113,7 @@ class Creature extends MovingObject {
         this.frameInterval = this.frameIntervals[initFrames];
         this.currentFrame = 0;
         this.isDead = false;
+        this.runSound = new Audio();
     }
 
     frameChange(isForward, deltaT) {
@@ -152,6 +153,9 @@ class Creature extends MovingObject {
 
         this.x += speedX * deltaT;
         this.y += speedY * deltaT;
+        if (this.runSound.src != '') {
+            this.runSound.play();
+        }
     }
 }
 
@@ -164,6 +168,14 @@ class Player extends Creature {
         this.canMoveBackward = true;
         this.canMoveUp = true;
         this.canMoveDown = true;
+        this.shootSound = [];
+        this.shootSound.push(new Audio());
+        this.shootSound.push(new Audio());
+        this.shootSound.push(new Audio());
+        this.shootSound[0].src = './Sounds/Weapon_1.wav';
+        this.shootSound[1].src = './Sounds/Weapon_2.wav';
+        this.shootSound[2].src = './Sounds/Weapon_3.wav';
+        this.runSound.src = './Sounds/Footstep.wav';
     }
 
     update(deltaT, context) {
@@ -194,7 +206,9 @@ class Player extends Creature {
             this.frameChange(true, deltaT);
         } else if (this.currentFrames !== this.frameSets.stand) this.stand();
 
-        if (keyState[32]) this.shoot();else if (keyState[49]) this.changeWeapon(0);else if (keyState[50]) this.changeWeapon(1);else if (keyState[51]) this.changeWeapon(2);
+        if (keyState[32]) {
+            this.shoot();
+        } else if (keyState[49]) this.changeWeapon(0);else if (keyState[50]) this.changeWeapon(1);else if (keyState[51]) this.changeWeapon(2);
 
         if (keyState[82] && this.currentGun.currentBulletsAmount !== this.currentGun.bulletCapacity) this.currentGun.reload();
     }
@@ -211,10 +225,12 @@ class Player extends Creature {
             this.currentFrame = 0;
         }
         if (this.currentGun.readyToShoot) {
+            this.shootSound[this.guns.indexOf(this.currentGun)].load();
             this.currentGun.shoot(this.x + 105, this.y + 49);
             if (this.currentFrames === this.frameSets.shoot) {
                 this.currentFrame = 0;
             }
+            this.shootSound[this.guns.indexOf(this.currentGun)].play();
         }
     }
 
@@ -248,6 +264,8 @@ class Enemy extends Creature {
         this.isPoisoned = false;
         this.poisonEffectInterval = 0;
         this.curPoisonEffectInterval = 0;
+        this.scream = new Audio();
+        this.scream.src = './Sounds/Enemy_scream.wav';
     }
 
     update(deltaT, context) {
@@ -631,7 +649,7 @@ const enemyConfig = [-70, 3, {
     attack: ['./img/enemy/brown/attack/enemy_attack_1.png', './img/enemy/brown/attack/enemy_attack_2.png', './img/enemy/brown/attack/enemy_attack_3.png', './img/enemy/brown/attack/enemy_attack_4.png', './img/enemy/brown/attack/enemy_attack_5.png']
 }, 'run', {
     run: 4,
-    die: 10,
+    die: 15,
     attack: 5
 }, 2000];
 const enemyGeneratorConfig = [__WEBPACK_IMPORTED_MODULE_0__movingObject_js__["a" /* Enemy */], enemyConfig, 1000];
@@ -649,14 +667,30 @@ let player;
 let enemyGenerator;
 let time;
 let gameOverTime;
+let backgroundMusic = new Audio();
+let gameOverMusic = new Audio();
+let ktaSound = new Audio();
+let mainMenuMusic = new Audio();
+let enemyAttackSound = new Audio();
+let playerDeath = new Audio();
 
 document.addEventListener('keydown', function (e) {
-    if (e.keyCode == 13 && !isGameStarted || e.keyCode == 13 && isGameOver) {
+    if (e.keyCode == 13 && !isGameStarted) {
+        mainMenuMusic.pause();
+        gameStart();
+        return;
+    }
+    if (e.keyCode == 13 && isGameOver) {
+        for (let i = 0; i < creatureManager.length; i++) {
+            creatureManager[i].runSound.pause();
+        }
+        gameOverMusic.pause();
         gameStart();
         return;
     }
     if (e.keyCode == 27 && isStoped == false) {
         isStoped = true;
+        backgroundMusic.pause();
         return;
     }
     if (e.keyCode == 27 && isStoped != false) {
@@ -667,6 +701,7 @@ document.addEventListener('keydown', function (e) {
     }
     if (e.keyCode == 81 && isUltReady) {
         killEmAll();
+        ktaSound.play();
         window.setTimeout(() => isUltReady = false, 1500);
     }
     __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["c" /* keyState */][e.keyCode || e.which] = true;
@@ -695,7 +730,11 @@ const checkBulletsCollisions = function () {
             }
         }
         if (creatureManager[j].health <= 0) {
-            creatureManager[j].isDead = true;
+            if (creatureManager[j] instanceof __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["a" /* Enemy */]) {
+                creatureManager[j].scream.play();
+                creatureManager[j].runSound.pause();
+                creatureManager[j].isDead = true;
+            }
         }
         if (creatureManager[j].isCompletelyDead == true) {
             creatureManager.splice(j, 1);
@@ -733,6 +772,7 @@ const checkPlayerCollisions = function () {
             }
         }
         if (creatureManager[i].isAttackComplete) {
+            enemyAttackSound.play();
             creatureManager[i].isAttackComplete = false;
             if (player.canMoveForward == false) player.health -= 1;
         }
@@ -793,21 +833,35 @@ const redraw = function () {
     __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["e" /* drawInterface */])(ctx, player, weaponImages, isUltReady);
     checkScore();
     if (player.health < 1 && !isGameOver) {
+        backgroundMusic.pause();
+        backgroundMusic.load();
+        gameOverMusic.load();
+        gameOverMusic.loop = true;
+        gameOverMusic.play();
+        playerDeath.play();
         player.isDead = true;
         isGameOver = true;
         gameOverTime = Date.now();
     }
 
     if (isGameOver) {
-        if (time - gameOverTime > 2000) __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["f" /* gameOver */])(ctx);
+        if (time - gameOverTime > 5000) {
+            __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["f" /* gameOver */])(ctx);
+            requestAnimationFrame(redraw);
+            return;
+        }
     } else {
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["g" /* drawWeaponIndicator */])(ctx, player);
         if (isStoped) {
             __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__interface_js__["h" /* drawPause */])(ctx);
+            backgroundMusic.pause();
+            for (let i = 0; i < creatureManager.length; i++) {
+                creatureManager[i].runSound.pause();
+            }
             return;
         }
     }
-
+    if (!isGameOver) backgroundMusic.play();
     checkBulletsCollisions();
     requestAnimationFrame(redraw);
 };
@@ -815,7 +869,8 @@ const redraw = function () {
 (function () {
     background.src = './img/background.png';
     ctx.lineWidth = 5;
-
+    backgroundMusic.src = './Sounds/Background_Music.mp3';
+    gameOverMusic.src = './Sounds/Game_Over.mp3';
     weaponImages.push(new Image());
     weaponImages.push(new Image());
     weaponImages.push(new Image());
@@ -826,7 +881,11 @@ const redraw = function () {
     weaponImages[2].src = './img/interface/poison.jpg';
     weaponImages[3].src = './img/interface/frost.jpg';
     weaponImages[4].src = './img/interface/ult.jpg';
-
+    ktaSound.src = './Sounds/Explosion.wav';
+    mainMenuMusic.src = './Sounds/Main_Menu.ogg';
+    enemyAttackSound.src = './Sounds/Enemy_attack.wav';
+    playerDeath.src = './Sounds/Player_death.wav';
+    mainMenuMusic.play();
     requestAnimationFrame(redraw);
 })();
 
