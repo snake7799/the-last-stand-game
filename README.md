@@ -1,1 +1,2 @@
-# JSkills-game-team
+# THE LAST STAND
+© JSkills Game Team 2017
