@@ -99,45 +99,49 @@ let enemyGenerator;
 let time;
 let gameOverTime;
 let lastUltUseScore;
+let mainMenuMusic = new Audio();
 let backgroundMusic = new Audio();
 let gameOverMusic = new Audio();
 let ktaSound = new Audio();
-let mainMenuMusic = new Audio();
 let enemyAttackSound = new Audio();
-let playerDeath = new Audio();
+let playerDeathSound = new Audio();
 
 document.addEventListener('keydown', function(e) {
-	if (e.keyCode == 13 && !isGameStarted) {
-        mainMenuMusic.pause();
-		gameStart();
-		return;
+	if (e.keyCode == 13) {
+		if (!isGameStarted) {
+			mainMenuMusic.pause();
+			gameStart();
+			return;
+		}
+		if (isGameOver) {
+			for (let i = 0; i < creatureManager.length; i++) {
+				creatureManager[i].runSound.pause();
+			}
+			gameOverMusic.pause();
+			gameStart();
+			return;
+		}
 	}
-    if (e.keyCode == 13 && isGameOver) {
-        for (let i = 0; i < creatureManager.length; i++) {
-            creatureManager[i].runSound.pause();
-        }
-        gameOverMusic.pause();
-        gameStart();
-        return;
-    }
-	if (e.keyCode == 27 && isStoped == false) {
-		isStoped = true;
-        backgroundMusic.pause();
-		return;
+	if (e.keyCode == 27) {
+		if (isStoped == false) {
+			isStoped = true;
+			backgroundMusic.pause();
+			return;
+		}
+		if (isStoped != false) {
+			isStoped = false;
+			time = Date.now();
+			requestAnimationFrame(redraw);
+			return;
+		}
 	}
-	if (e.keyCode == 27 && isStoped != false) {
-		isStoped = false;
-		time = Date.now();
-		requestAnimationFrame(redraw);
-		return;
-	}
-	if (e.keyCode == 81 && isUltReady) {
+	if (e.keyCode == 52 && isUltReady) {
 		killEmAll();
 		window.setTimeout(() => {
             isUltReady = false;
             lastUltUseScore = getScore();
         }, 1100);
-    ktaSound.play();
+    	ktaSound.play();
 	}
 	keyState[e.keyCode || e.which] = true;
 }, true);
@@ -162,7 +166,7 @@ const checkBulletsCollisions = function() {
         }
         if (creatureManager[j].health <= 0) {
             if (creatureManager[j] instanceof Enemy) {
-                creatureManager[j].scream.play();
+				creatureManager[j].screamSound.play();
                 creatureManager[j].runSound.pause();
                 creatureManager[j].isDead = true;
             }
@@ -283,7 +287,7 @@ const redraw = function() {
         gameOverMusic.load();
         gameOverMusic.loop = true;
         gameOverMusic.play();
-        playerDeath.play();
+        playerDeathSound.play();
 		player.isDead = true;
         isGameOver = true;
         gameOverTime = Date.now();
@@ -314,8 +318,10 @@ const redraw = function() {
 (function() {
 	background.src = './img/background.png';
     ctx.lineWidth = 5;
-    backgroundMusic.src = './Sounds/Background_Music.mp3';
-    gameOverMusic.src = './Sounds/Game_Over.mp3';
+    backgroundMusic.src = './sounds/background.mp3';
+	backgroundMusic.volume = .3;
+    gameOverMusic.src = './sounds/game_over.mp3';
+	gameOverMusic.volume = .5;
     weaponImages.push(new Image());
     weaponImages.push(new Image());
     weaponImages.push(new Image());
@@ -326,10 +332,14 @@ const redraw = function() {
     weaponImages[2].src = './img/interface/poison.jpg';
     weaponImages[3].src = './img/interface/frost.jpg';
     weaponImages[4].src = './img/interface/ult.jpg';
-    ktaSound.src = './Sounds/Explosion.wav';
-    mainMenuMusic.src = './Sounds/Main_Menu.ogg';
-    enemyAttackSound.src = './Sounds/Enemy_attack.wav';
-    playerDeath.src = './Sounds/Player_death.wav';
-    mainMenuMusic.play();
+    ktaSound.src = './sounds/explosion.wav';
+	ktaSound.volume = .2;
+    mainMenuMusic.src = './sounds/main_menu.ogg';
+	mainMenuMusic.volume = .9;
+    enemyAttackSound.src = './sounds/enemy_attack.wav';
+	enemyAttackSound.volume = .3;
+    playerDeathSound.src = './sounds/player_death.wav';
+    playerDeathSound.volume = .6;
+	mainMenuMusic.play();
     requestAnimationFrame(redraw);
 }());

@@ -177,9 +177,7 @@ class Creature extends MovingObject {
 
         this.x += speedX * deltaT;
         this.y += speedY * deltaT;
-        if (this.runSound.src != '') {
-            this.runSound.play();
-        }
+        if (this.runSound.src != '') this.runSound.play();
     }
 }
 
@@ -193,13 +191,14 @@ class Player extends Creature {
         this.canMoveUp = true;
         this.canMoveDown = true;
         this.shootSound = [];
-        this.shootSound.push(new Audio());
-        this.shootSound.push(new Audio());
-        this.shootSound.push(new Audio());
-        this.shootSound[0].src = './Sounds/Weapon_1.wav';
-        this.shootSound[1].src = './Sounds/Weapon_2.wav';
-        this.shootSound[2].src = './Sounds/Weapon_3.wav';
-        this.runSound.src = './Sounds/Footstep.wav';
+        this.runSound.src = './sounds/footstep.wav';
+        this.runSound.volume = .2;
+        for (let i = 0; i < 3; i++) {
+            this.shootSound.push(new Audio());
+            this.shootSound[i].src = `./sounds/weapon_${i + 1}.wav`;
+            this.shootSound[i].volume = .25;
+        }
+        this.shootSound[2].volume = 1;
     }
 
     update(deltaT, context) {
@@ -288,8 +287,9 @@ class Enemy extends Creature {
         this.isPoisoned = false;
         this.poisonEffectInterval = 0;
         this.curPoisonEffectInterval = 0;
-        this.scream = new Audio();
-        this.scream.src = './Sounds/Enemy_scream.wav';
+        this.screamSound = new Audio();
+        this.screamSound.src = './sounds/enemy_scream.wav';
+        this.screamSound.volume = .6;
     }
 
     update(deltaT, context) {
@@ -411,7 +411,7 @@ const drawStartScreen = function (context) {
 	context.fillText('Use arrow keys to move', 1020, 430);
 	context.fillText('Use the Space key to shoot', 1005, 480);
 	context.fillText('Use the R key to force reload', 992, 530);
-	context.fillText('Use 1...3 keys to change bullets', 981, 580);
+	context.fillText('Use 1...4 keys to change bullets', 981, 580);
 
 	context.font = '26px Agency FB';
 	context.fillText('JSkills Game Team © 2017', 645, 680);
@@ -694,39 +694,43 @@ let enemyGenerator;
 let time;
 let gameOverTime;
 let lastUltUseScore;
+let mainMenuMusic = new Audio();
 let backgroundMusic = new Audio();
 let gameOverMusic = new Audio();
 let ktaSound = new Audio();
-let mainMenuMusic = new Audio();
 let enemyAttackSound = new Audio();
-let playerDeath = new Audio();
+let playerDeathSound = new Audio();
 
 document.addEventListener('keydown', function (e) {
-    if (e.keyCode == 13 && !isGameStarted) {
-        mainMenuMusic.pause();
-        gameStart();
-        return;
-    }
-    if (e.keyCode == 13 && isGameOver) {
-        for (let i = 0; i < creatureManager.length; i++) {
-            creatureManager[i].runSound.pause();
+    if (e.keyCode == 13) {
+        if (!isGameStarted) {
+            mainMenuMusic.pause();
+            gameStart();
+            return;
         }
-        gameOverMusic.pause();
-        gameStart();
-        return;
+        if (isGameOver) {
+            for (let i = 0; i < creatureManager.length; i++) {
+                creatureManager[i].runSound.pause();
+            }
+            gameOverMusic.pause();
+            gameStart();
+            return;
+        }
     }
-    if (e.keyCode == 27 && isStoped == false) {
-        isStoped = true;
-        backgroundMusic.pause();
-        return;
+    if (e.keyCode == 27) {
+        if (isStoped == false) {
+            isStoped = true;
+            backgroundMusic.pause();
+            return;
+        }
+        if (isStoped != false) {
+            isStoped = false;
+            time = Date.now();
+            requestAnimationFrame(redraw);
+            return;
+        }
     }
-    if (e.keyCode == 27 && isStoped != false) {
-        isStoped = false;
-        time = Date.now();
-        requestAnimationFrame(redraw);
-        return;
-    }
-    if (e.keyCode == 81 && isUltReady) {
+    if (e.keyCode == 52 && isUltReady) {
         killEmAll();
         window.setTimeout(() => {
             isUltReady = false;
@@ -753,7 +757,7 @@ const checkBulletsCollisions = function () {
         }
         if (creatureManager[j].health <= 0) {
             if (creatureManager[j] instanceof __WEBPACK_IMPORTED_MODULE_0__movingObject_js__["a" /* Enemy */]) {
-                creatureManager[j].scream.play();
+                creatureManager[j].screamSound.play();
                 creatureManager[j].runSound.pause();
                 creatureManager[j].isDead = true;
             }
@@ -858,7 +862,7 @@ const redraw = function () {
         gameOverMusic.load();
         gameOverMusic.loop = true;
         gameOverMusic.play();
-        playerDeath.play();
+        playerDeathSound.play();
         player.isDead = true;
         isGameOver = true;
         gameOverTime = Date.now();
@@ -889,8 +893,10 @@ const redraw = function () {
 (function () {
     background.src = './img/background.png';
     ctx.lineWidth = 5;
-    backgroundMusic.src = './Sounds/Background_Music.mp3';
-    gameOverMusic.src = './Sounds/Game_Over.mp3';
+    backgroundMusic.src = './sounds/background.mp3';
+    backgroundMusic.volume = .3;
+    gameOverMusic.src = './sounds/game_over.mp3';
+    gameOverMusic.volume = .5;
     weaponImages.push(new Image());
     weaponImages.push(new Image());
     weaponImages.push(new Image());
@@ -901,10 +907,14 @@ const redraw = function () {
     weaponImages[2].src = './img/interface/poison.jpg';
     weaponImages[3].src = './img/interface/frost.jpg';
     weaponImages[4].src = './img/interface/ult.jpg';
-    ktaSound.src = './Sounds/Explosion.wav';
-    mainMenuMusic.src = './Sounds/Main_Menu.ogg';
-    enemyAttackSound.src = './Sounds/Enemy_attack.wav';
-    playerDeath.src = './Sounds/Player_death.wav';
+    ktaSound.src = './sounds/explosion.wav';
+    ktaSound.volume = .2;
+    mainMenuMusic.src = './sounds/main_menu.ogg';
+    mainMenuMusic.volume = .9;
+    enemyAttackSound.src = './sounds/enemy_attack.wav';
+    enemyAttackSound.volume = .3;
+    playerDeathSound.src = './sounds/player_death.wav';
+    playerDeathSound.volume = .6;
     mainMenuMusic.play();
     requestAnimationFrame(redraw);
 })();

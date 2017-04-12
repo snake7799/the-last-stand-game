@@ -98,9 +98,7 @@ class Creature extends MovingObject {
 
         this.x += speedX * deltaT;
         this.y += speedY * deltaT;
-        if (this.runSound.src != '') {
-            this.runSound.play();
-        }
+        if (this.runSound.src != '') this.runSound.play();
     }
 }
 
@@ -113,14 +111,15 @@ class Player extends Creature {
         this.canMoveBackward = true;
         this.canMoveUp = true;
         this.canMoveDown = true;
-        this.shootSound = [];
-        this.shootSound.push(new Audio());
-        this.shootSound.push(new Audio());
-        this.shootSound.push(new Audio());
-        this.shootSound[0].src = './Sounds/Weapon_1.wav';
-        this.shootSound[1].src = './Sounds/Weapon_2.wav';
-        this.shootSound[2].src = './Sounds/Weapon_3.wav';
-        this.runSound.src = './Sounds/Footstep.wav';
+        this.shootSound = [];	
+		this.runSound.src = './sounds/footstep.wav';
+		this.runSound.volume = .2;
+		for (let i = 0; i < 3; i++) {
+			this.shootSound.push(new Audio());
+			this.shootSound[i].src = `./sounds/weapon_${i+1}.wav`;
+			this.shootSound[i].volume = .25;
+		}
+		this.shootSound[2].volume = 1;
     }
 
     update(deltaT, context) {
@@ -219,8 +218,9 @@ class Enemy extends Creature {
         this.isPoisoned = false;
         this.poisonEffectInterval = 0;
         this.curPoisonEffectInterval = 0;
-        this.scream = new Audio();
-        this.scream.src = './Sounds/Enemy_scream.wav';
+        this.screamSound = new Audio();
+		this.screamSound.src = './sounds/enemy_scream.wav';
+		this.screamSound.volume = .6;
     }
 
     update(deltaT, context) {
