@@ -2,16 +2,16 @@
 	font-family: 'Agency FB';
 	font-weight: normal;
 	src: local('Agency FB'),
-		url('./fonts/AGENCYR.woff') format('woff'),
-		url('./fonts/AGENCYR.ttf') format('ttf'),
-		url('./fonts/AGENCYR.eot') format('eot');
+		url('../fonts/AGENCYR.woff') format('woff'),
+		url('../fonts/AGENCYR.ttf') format('ttf'),
+		url('../fonts/AGENCYR.eot') format('eot');
 }
 
 @font-face {
 	font-family: 'Agency FB';
 	font-weight: bold;
 	src: local('Agency FB'),
-		url('./fonts/AGENCYB.woff') format('woff'),
-		url('./fonts/AGENCYB.ttf') format('ttf'),
-		url('./fonts/AGENCYB.eot') format('eot');
+		url('../fonts/AGENCYB.woff') format('woff'),
+		url('../fonts/AGENCYB.ttf') format('ttf'),
+		url('../fonts/AGENCYB.eot') format('eot');
 }
